@@ -23,3 +23,13 @@ public func registerDefaults() {
 extension DefaultsKeys {
     static let favorites = DefaultsKey<[String]>("favorites")
 }
+
+extension UserDefaults {
+    func favorites() -> [TimeZoneItem] {
+        let abbrDict = TimeZone.abbreviationDictionary
+        return self[.favorites].map { key -> TimeZoneItem in
+            let value = abbrDict[key]
+            return TimeZoneItem(abbr: key, title: value!, timezone: TimeZone(abbreviation: key)!)
+        }
+    }
+}

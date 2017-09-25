@@ -9,7 +9,7 @@
 import Foundation
 
 extension Array {
-    ////swiftlint:disable identifier_name
+    //swiftlint:disable identifier_name
     public mutating func move(at: Index, to: Index) {
         let item = self.remove(at: at)
         self.insert(item, at: to)

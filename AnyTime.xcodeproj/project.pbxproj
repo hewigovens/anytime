@@ -9,17 +9,22 @@
 /* Begin PBXBuildFile section */
 		22DEC68C9599669BB0886F43 /* Pods_AnyTimeTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 93776C7A6C2C5441B909D6BD /* Pods_AnyTimeTests.framework */; };
 		BB1C59851F7688F000808529 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1C59841F7688F000808529 /* AppDelegate.swift */; };
-		BB1C59871F7688F000808529 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1C59861F7688F000808529 /* ViewController.swift */; };
+		BB1C59871F7688F000808529 /* GlanceViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1C59861F7688F000808529 /* GlanceViewController.swift */; };
 		BB1C598C1F7688F000808529 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BB1C598B1F7688F000808529 /* Assets.xcassets */; };
 		BB1C598F1F7688F000808529 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = BB1C598D1F7688F000808529 /* LaunchScreen.storyboard */; };
 		BB1C599A1F7688F000808529 /* AnyTimeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1C59991F7688F000808529 /* AnyTimeTests.swift */; };
 		BB5BBA191F774E1300C87688 /* Defaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB5BBA181F774E1300C87688 /* Defaults.swift */; };
 		BB5BBA1B1F7755B500C87688 /* UIView+Frame.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB5BBA1A1F7755B500C87688 /* UIView+Frame.swift */; };
 		BB5BBA1D1F778F4100C87688 /* TimeZoneCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB5BBA1C1F778F4100C87688 /* TimeZoneCell.swift */; };
+		BB95E0651F789E5500858FD9 /* TimeZone+Offset.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB95E0641F789E5500858FD9 /* TimeZone+Offset.swift */; };
+		BB95E0671F78A8E700858FD9 /* TimeZoneItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB95E0661F78A8E700858FD9 /* TimeZoneItem.swift */; };
+		BB95E0691F78B6D800858FD9 /* DispatchQueue+Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB95E0681F78B6D800858FD9 /* DispatchQueue+Utils.swift */; };
 		BBE5E5FE1F779FCB00A9F715 /* StepCollectionViewFlowLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBE5E5FB1F779FCB00A9F715 /* StepCollectionViewFlowLayout.swift */; };
 		BBE5E5FF1F779FCB00A9F715 /* DateTimePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBE5E5FC1F779FCB00A9F715 /* DateTimePicker.swift */; };
 		BBE5E6001F779FCB00A9F715 /* DateCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBE5E5FD1F779FCB00A9F715 /* DateCollectionViewCell.swift */; };
 		BBE5E6051F77E83200A9F715 /* Array+Swap.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBE5E6041F77E83200A9F715 /* Array+Swap.swift */; };
+		BBE5E6071F7883E200A9F715 /* TimezonesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBE5E6061F7883E200A9F715 /* TimezonesViewController.swift */; };
+		BBE5E6091F7883EE00A9F715 /* SettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBE5E6081F7883EE00A9F715 /* SettingsViewController.swift */; };
 		E395941816C98D44E9E9796F /* Pods_AnyTime.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 60E57975B65C320023AD224F /* Pods_AnyTime.framework */; };
 /* End PBXBuildFile section */
 
@@ -41,7 +46,7 @@
 		93776C7A6C2C5441B909D6BD /* Pods_AnyTimeTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_AnyTimeTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		BB1C59811F7688F000808529 /* AnyTime.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AnyTime.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		BB1C59841F7688F000808529 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		BB1C59861F7688F000808529 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		BB1C59861F7688F000808529 /* GlanceViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlanceViewController.swift; sourceTree = "<group>"; };
 		BB1C598B1F7688F000808529 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		BB1C598E1F7688F000808529 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		BB1C59901F7688F000808529 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -51,10 +56,15 @@
 		BB5BBA181F774E1300C87688 /* Defaults.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Defaults.swift; sourceTree = "<group>"; };
 		BB5BBA1A1F7755B500C87688 /* UIView+Frame.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView+Frame.swift"; sourceTree = "<group>"; };
 		BB5BBA1C1F778F4100C87688 /* TimeZoneCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeZoneCell.swift; sourceTree = "<group>"; };
+		BB95E0641F789E5500858FD9 /* TimeZone+Offset.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TimeZone+Offset.swift"; sourceTree = "<group>"; };
+		BB95E0661F78A8E700858FD9 /* TimeZoneItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeZoneItem.swift; sourceTree = "<group>"; };
+		BB95E0681F78B6D800858FD9 /* DispatchQueue+Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DispatchQueue+Utils.swift"; sourceTree = "<group>"; };
 		BBE5E5FB1F779FCB00A9F715 /* StepCollectionViewFlowLayout.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StepCollectionViewFlowLayout.swift; sourceTree = "<group>"; };
 		BBE5E5FC1F779FCB00A9F715 /* DateTimePicker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DateTimePicker.swift; sourceTree = "<group>"; };
 		BBE5E5FD1F779FCB00A9F715 /* DateCollectionViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DateCollectionViewCell.swift; sourceTree = "<group>"; };
 		BBE5E6041F77E83200A9F715 /* Array+Swap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array+Swap.swift"; sourceTree = "<group>"; };
+		BBE5E6061F7883E200A9F715 /* TimezonesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimezonesViewController.swift; sourceTree = "<group>"; };
+		BBE5E6081F7883EE00A9F715 /* SettingsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewController.swift; sourceTree = "<group>"; };
 		CBA4A04FE2BB193C59B31EA4 /* Pods-AnyTime.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AnyTime.release.xcconfig"; path = "Pods/Target Support Files/Pods-AnyTime/Pods-AnyTime.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -110,16 +120,13 @@
 		BB1C59831F7688F000808529 /* AnyTime */ = {
 			isa = PBXGroup;
 			children = (
-				BBE5E5FA1F779FCB00A9F715 /* DateTimePicker */,
 				BB1C59841F7688F000808529 /* AppDelegate.swift */,
-				BB1C59861F7688F000808529 /* ViewController.swift */,
-				BB5BBA181F774E1300C87688 /* Defaults.swift */,
-				BB5BBA1C1F778F4100C87688 /* TimeZoneCell.swift */,
-				BB5BBA1A1F7755B500C87688 /* UIView+Frame.swift */,
+				BBE5E5FA1F779FCB00A9F715 /* DateTimePicker */,
+				BBE5E60A1F7887F000A9F715 /* View */,
+				BBE5E60B1F78880800A9F715 /* Utils */,
 				BB1C598B1F7688F000808529 /* Assets.xcassets */,
 				BB1C598D1F7688F000808529 /* LaunchScreen.storyboard */,
 				BB1C59901F7688F000808529 /* Info.plist */,
-				BBE5E6041F77E83200A9F715 /* Array+Swap.swift */,
 			);
 			path = AnyTime;
 			sourceTree = "<group>";
@@ -141,6 +148,30 @@
 				BBE5E5FD1F779FCB00A9F715 /* DateCollectionViewCell.swift */,
 			);
 			path = DateTimePicker;
+			sourceTree = "<group>";
+		};
+		BBE5E60A1F7887F000A9F715 /* View */ = {
+			isa = PBXGroup;
+			children = (
+				BB95E0661F78A8E700858FD9 /* TimeZoneItem.swift */,
+				BB5BBA1C1F778F4100C87688 /* TimeZoneCell.swift */,
+				BB1C59861F7688F000808529 /* GlanceViewController.swift */,
+				BBE5E6061F7883E200A9F715 /* TimezonesViewController.swift */,
+				BBE5E6081F7883EE00A9F715 /* SettingsViewController.swift */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
+		BBE5E60B1F78880800A9F715 /* Utils */ = {
+			isa = PBXGroup;
+			children = (
+				BBE5E6041F77E83200A9F715 /* Array+Swap.swift */,
+				BB5BBA181F774E1300C87688 /* Defaults.swift */,
+				BB5BBA1A1F7755B500C87688 /* UIView+Frame.swift */,
+				BB95E0641F789E5500858FD9 /* TimeZone+Offset.swift */,
+				BB95E0681F78B6D800858FD9 /* DispatchQueue+Utils.swift */,
+			);
+			path = Utils;
 			sourceTree = "<group>";
 		};
 		EEC869C210A1671350B43A30 /* Pods */ = {
@@ -267,8 +298,9 @@
 			inputPaths = (
 				"${SRCROOT}/Pods/Target Support Files/Pods-AnyTime/Pods-AnyTime-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/Colours/Colours.framework",
-				"${BUILT_PRODUCTS_DIR}/DateTimePicker/DateTimePicker.framework",
 				"${BUILT_PRODUCTS_DIR}/FontAwesomeKit/FontAwesomeKit.framework",
+				"${BUILT_PRODUCTS_DIR}/MarqueeLabel/MarqueeLabel.framework",
+				"${BUILT_PRODUCTS_DIR}/NotificationBannerSwift/NotificationBannerSwift.framework",
 				"${BUILT_PRODUCTS_DIR}/Reusable/Reusable.framework",
 				"${BUILT_PRODUCTS_DIR}/SnapKit/SnapKit.framework",
 				"${BUILT_PRODUCTS_DIR}/SwiftyUserDefaults/SwiftyUserDefaults.framework",
@@ -276,8 +308,9 @@
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Colours.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/DateTimePicker.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FontAwesomeKit.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/MarqueeLabel.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/NotificationBannerSwift.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Reusable.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SnapKit.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftyUserDefaults.framework",
@@ -391,12 +424,17 @@
 			files = (
 				BBE5E6051F77E83200A9F715 /* Array+Swap.swift in Sources */,
 				BB5BBA1B1F7755B500C87688 /* UIView+Frame.swift in Sources */,
+				BBE5E6091F7883EE00A9F715 /* SettingsViewController.swift in Sources */,
 				BB5BBA191F774E1300C87688 /* Defaults.swift in Sources */,
+				BBE5E6071F7883E200A9F715 /* TimezonesViewController.swift in Sources */,
+				BB95E0651F789E5500858FD9 /* TimeZone+Offset.swift in Sources */,
 				BBE5E5FE1F779FCB00A9F715 /* StepCollectionViewFlowLayout.swift in Sources */,
+				BB95E0691F78B6D800858FD9 /* DispatchQueue+Utils.swift in Sources */,
 				BBE5E5FF1F779FCB00A9F715 /* DateTimePicker.swift in Sources */,
 				BBE5E6001F779FCB00A9F715 /* DateCollectionViewCell.swift in Sources */,
 				BB5BBA1D1F778F4100C87688 /* TimeZoneCell.swift in Sources */,
-				BB1C59871F7688F000808529 /* ViewController.swift in Sources */,
+				BB1C59871F7688F000808529 /* GlanceViewController.swift in Sources */,
+				BB95E0671F78A8E700858FD9 /* TimeZoneItem.swift in Sources */,
 				BB1C59851F7688F000808529 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -479,7 +517,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
@@ -530,7 +568,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";

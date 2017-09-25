@@ -8,6 +8,7 @@ target 'AnyTime' do
   pod 'Reusable'
   pod 'SwiftyUserDefaults'
   pod 'FontAwesomeKit/IonIcons'
+  pod 'NotificationBannerSwift', '~> 1.5.1'
 
   target 'AnyTimeTests' do
     inherit! :search_paths

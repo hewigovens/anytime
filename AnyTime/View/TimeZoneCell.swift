@@ -10,10 +10,14 @@ import Foundation
 import Colours
 import Reusable
 
-struct TimeZoneItem {
-    let abbr: String
-    let title: String
-    let timezone: TimeZone
+extension TimeZoneItem {
+    var area: (continent: String, city: String) {
+        let array = self.title.split(separator: "/")
+        if array.count < 2 {
+            return (String(array[0]), String(array[0]))
+        }
+        return (String(array[0]), String(array[1]).replacingOccurrences(of: "_", with: " "))
+    }
 }
 
 class TimeZoneCell: UITableViewCell, Reusable {
@@ -41,7 +45,15 @@ class TimeZoneCell: UITableViewCell, Reusable {
     }
 
     var infoLabel: UILabel? {
-        return self.accessoryView as? UILabel
+        var label = self.accessoryView as? UILabel
+        if label == nil {
+            label = UILabel()
+            label?.textAlignment = .right
+            label?.font = UIFont.monospacedDigitSystemFont(ofSize: 16, weight: UIFont.Weight.medium)
+            self.textLabel?.font = label?.font
+            self.accessoryView = label
+        }
+        return label
     }
 
     override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
@@ -55,6 +67,7 @@ class TimeZoneCell: UITableViewCell, Reusable {
     func highlight() {
         let cell = self
         cell.backgroundColor = UIColor.white
+        cell.backgroundView = nil
         cell.textLabel?.textColor = UIColor.black25Percent()
         cell.detailTextLabel?.textColor = UIColor.black25Percent()
         cell.infoLabel?.textColor = UIColor.black25Percent()
@@ -71,24 +84,10 @@ class TimeZoneCell: UITableViewCell, Reusable {
     func displayDate() {
         guard let timezone = self.timezone else { return }
 
-        let offset = timezone.timezone.secondsFromGMT() / 3600
-        var text = timezone.abbr
-        if offset != 0 {
-            text = "\(text) \(offset > 0 ? "+": "")\(offset) "
-        }
-        self.textLabel?.text = text
+        self.textLabel?.text = timezone.timezone.offset(string: timezone.abbr)
         self.detailTextLabel?.text = timezone.title
-
-        var label = self.accessoryView as? UILabel
-        if label == nil {
-            label = UILabel()
-            label?.textAlignment = .right
-            label?.font = UIFont.monospacedDigitSystemFont(ofSize: 16, weight: UIFont.Weight.medium)
-            self.textLabel?.font = label?.font
-            self.accessoryView = label
-        }
-        label?.text = formatter.string(from: self.date ?? Date())
-        label?.sizeToFit()
+        self.infoLabel?.text = formatter.string(from: self.date ?? Date())
+        self.infoLabel?.sizeToFit()
         self.setNeedsDisplay()
     }
 }

@@ -13,17 +13,30 @@ import SwiftyUserDefaults
 import SnapKit
 import FontAwesomeKit
 
-class ViewController: UITableViewController {
+class GlanceViewController: UITableViewController {
 
+    var favs = [String]()
     var timezones = [TimeZoneItem]()
     var selectedDate: Date?
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        self.favs = Defaults[.favorites]
         self.configureNaviItem()
         self.configureData()
         self.configureSubviews()
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+
+        let favs = Defaults[.favorites]
+        if self.favs != favs {
+            self.favs = favs
+            self.timezones = Defaults.favorites()
+            self.tableView.reloadData()
+        }
     }
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -32,11 +45,13 @@ class ViewController: UITableViewController {
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell: TimeZoneCell = tableView.dequeueReusableCell(for: indexPath)
+        if indexPath.row > self.timezones.count {
+            return cell
+        }
         let timezone = self.timezones[indexPath.row]
         cell.date = self.selectedDate
         cell.timezone = timezone
         print("cellForRowAt \(indexPath) \(timezone.title)")
-        print(self.timezones)
         return cell
     }
 
@@ -52,31 +67,29 @@ class ViewController: UITableViewController {
 
         tableView.deselectRow(at: indexPath, animated: true)
         let topIndex = IndexPath(row: 0, section: 0)
+        let secondIndex = IndexPath(row: 1, section: 0)
         if indexPath == topIndex {
             self.showDatePicker()
             return
         }
-
         tableView.beginUpdates()
         self.timezones.move(at: indexPath.row, to: topIndex.row)
         tableView.moveRow(at: indexPath, to: topIndex)
         tableView.endUpdates()
-        print(self.timezones)
-        DispatchQueue.main.async {
-            for cell in tableView.visibleCells.dropFirst() {
-                if let cell = cell as? TimeZoneCell {
-                    cell.unhighlight()
-                    cell.setNeedsDisplay()
-                }
+
+        if indexPath.row > tableView.visibleCells.count - 1 {
+            tableView.reloadData()
+            tableView.setContentOffset(CGPoint(x: 0, y: -tableView.contentInset.top), animated: true)
+        } else {
+            DispatchQueue.main.delay(ms: 500) {
+                tableView.reloadRows(at: [topIndex, secondIndex], with: .automatic)
+                tableView.setContentOffset(CGPoint(x: 0, y: -tableView.contentInset.top), animated: true)
             }
-            tableView.scrollToRow(at: topIndex, at: .top, animated: true)
-            tableView.reloadRows(at: [topIndex], with: .automatic)
         }
     }
 
     override func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         guard let cell = cell as? TimeZoneCell else { return }
-
         if indexPath.row == 0 {
             cell.highlight()
         } else {
@@ -98,20 +111,23 @@ class ViewController: UITableViewController {
         if editingStyle == .delete {
             tableView.beginUpdates()
             self.timezones.remove(at: indexPath.row)
+            self.favs.remove(at: indexPath.row)
+            Defaults.set(.favorites, self.favs)
             tableView.deleteRows(at: [indexPath], with: .automatic)
             tableView.endUpdates()
-            print(self.timezones)
         }
     }
 }
 
-extension ViewController {
+extension GlanceViewController {
     @objc func addTimezone() {
-
+        let vc = TimezonesViewController()
+        self.present(UINavigationController(rootViewController: vc), animated: true, completion: nil)
     }
 
     @objc func showSettings() {
-
+        let vc = SettingsViewController(style: .grouped)
+        self.present(UINavigationController(rootViewController: vc), animated: true, completion: nil)
     }
 
     func showDatePicker() {
@@ -151,22 +167,20 @@ extension ViewController {
     }
 
     func configureData() {
-        let fav = Defaults[.favorites]
-        let abbrDict = TimeZone.abbreviationDictionary
-        self.timezones = fav.map { key -> TimeZoneItem in
-            let value = abbrDict[key]
-            return TimeZoneItem(abbr: key, title: value!, timezone: TimeZone(abbreviation: key)!)
-        }
+        self.timezones = Defaults.favorites()
     }
 
     func configureSubviews() {
-        let height: CGFloat = 550
-        self.view.backgroundColor = UIColor.white
         self.tableView.register(cellType: TimeZoneCell.self)
         self.tableView.separatorStyle = .none
         self.tableView.backgroundColor = UIColor.midnightBlue()
-        self.tableView.tableHeaderView = self.createHeader(height: height)
         self.tableView.tableFooterView = UIView()
+        self.configureHeader()
+    }
+
+    func configureHeader() {
+        let height: CGFloat = 550
+        self.tableView.tableHeaderView = self.createHeader(height: height)
         self.tableView.contentInset = UIEdgeInsets(top: -height, left: 0, bottom: 0, right: 0)
     }
 
