@@ -31,13 +31,6 @@ class GlanceViewController: UITableViewController {
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-
-        let favs = Defaults[.favorites]
-        if self.favs != favs {
-            self.favs = favs
-            self.timezones = Defaults.favorites()
-            self.tableView.reloadData()
-        }
     }
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -52,7 +45,6 @@ class GlanceViewController: UITableViewController {
         let timezone = self.timezones[indexPath.row]
         cell.date = self.selectedDate
         cell.timezone = timezone
-        print("cellForRowAt \(indexPath) \(timezone.title)")
         return cell
     }
 
@@ -120,6 +112,32 @@ class GlanceViewController: UITableViewController {
             tableView.endUpdates()
         }
     }
+
+    //swiftlint:disable block_based_kvo
+    override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
+
+        if self.presentedViewController == nil {
+            return
+        }
+
+        guard let keyPath = keyPath, let change = change else {
+            return
+        }
+
+        if keyPath == AnyTimeKey.favorites.rawValue {
+            guard let new = change[NSKeyValueChangeKey.newKey] as? [String] else {
+                return
+            }
+            if self.favs != new {
+                self.favs = new
+                self.timezones = Defaults.getFavorites()
+                self.tableView.reloadData()
+            }
+        } else if keyPath == AnyTimeKey.format.rawValue {
+            //
+        }
+    }
+    //swiftlint:enable block_based_kvo
 }
 
 extension GlanceViewController {
@@ -173,7 +191,9 @@ extension GlanceViewController {
     }
 
     func configureData() {
-        self.timezones = Defaults.favorites()
+        self.timezones = Defaults.getFavorites()
+        Defaults.addObserver(self, forKeyPath: DefaultsKeys.favorites._key, options: [.new], context: nil)
+        Defaults.addObserver(self, forKeyPath: DefaultsKeys.format._key, options: [.new], context: nil)
     }
 
     func configureSubviews() {
@@ -200,7 +220,7 @@ extension GlanceViewController {
         header.backgroundColor = UIColor.white
         header.fp_height = height
         label.snp.makeConstraints { make in
-            make.bottom.equalToSuperview().offset(-150)
+            make.bottom.equalToSuperview().offset(-120)
             make.centerX.equalToSuperview()
         }
         let label2 = UILabel()

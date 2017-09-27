@@ -18,7 +18,7 @@ let timezonesCellId = "TimezonesCell"
 class TimezonesViewController: UIViewController {
 
     var data = [(prefix: String, items: [TimeZoneItem])]()
-    var set = Set<TimeZoneItem>(Defaults.favorites())
+    var set = Set<TimeZoneItem>(Defaults.getFavorites())
     weak var banner: NotificationBanner?
 
     lazy var tableView: UITableView = {

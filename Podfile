@@ -10,6 +10,8 @@ target 'AnyTime' do
   pod 'FontAwesomeKit/IonIcons'
   pod 'NotificationBannerSwift', '~> 1.5.1'
 
+  pod 'Crashlytics'
+  pod 'Fabric'
   pod 'FLEX', :configuration => ['Debug']
 
   target 'AnyTimeTests' do

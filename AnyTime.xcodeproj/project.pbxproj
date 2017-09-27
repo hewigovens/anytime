@@ -195,6 +195,7 @@
 				BB1C597F1F7688F000808529 /* Resources */,
 				0BFACACD2F9EDD744762668B /* [CP] Embed Pods Frameworks */,
 				D868086E35377562D25A04E2 /* [CP] Copy Pods Resources */,
+				BB647A591F7B7BCA00C3C2D4 /* Fabric */,
 			);
 			buildRules = (
 			);
@@ -366,6 +367,20 @@
 			shellPath = /bin/sh;
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-AnyTimeTests/Pods-AnyTimeTests-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
+		};
+		BB647A591F7B7BCA00C3C2D4 /* Fabric */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = Fabric;
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Fabric/run\" ffd1a21a45423d2959636c52dc02535a8fad1b60 dd1dfceaa343fa98ef49d12fa7f022c135640990742116059b7d05091289834f";
 		};
 		BBE5E6011F77DC8A00A9F715 /* swift lint */ = {
 			isa = PBXShellScriptBuildPhase;

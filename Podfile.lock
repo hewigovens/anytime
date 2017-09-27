@@ -2,6 +2,9 @@ PODS:
   - Colours (5.13.0):
     - Colours/ObjC (= 5.13.0)
   - Colours/ObjC (5.13.0)
+  - Crashlytics (3.8.6):
+    - Fabric (~> 1.6.3)
+  - Fabric (1.6.13)
   - FLEX (2.4.0)
   - FontAwesomeKit/Core (2.2.1)
   - FontAwesomeKit/IonIcons (2.2.1):
@@ -20,6 +23,8 @@ PODS:
 
 DEPENDENCIES:
   - Colours
+  - Crashlytics
+  - Fabric
   - FLEX
   - FontAwesomeKit/IonIcons
   - NotificationBannerSwift (~> 1.5.1)
@@ -29,6 +34,8 @@ DEPENDENCIES:
 
 SPEC CHECKSUMS:
   Colours: f24220c38f13deac88612667e9b4a7fb96b871d4
+  Crashlytics: 95d05f4e4c19a771250c4bd9ce344d996de32bbf
+  Fabric: 2fb5676bc811af011a04513451f463dac6803206
   FLEX: bd1a39e55b56bb413b6f1b34b3c10a0dc44ef079
   FontAwesomeKit: 3614979b3dbb0ec3f7fac1bd760b91f66c31db67
   MarqueeLabel: baa5753dcbd36dca080e1f5c589a665aa5c906f1
@@ -37,6 +44,6 @@ SPEC CHECKSUMS:
   SnapKit: a42d492c16e80209130a3379f73596c3454b7694
   SwiftyUserDefaults: 0f1d45fc3aafb9064dac661e367f8f83fe21a4b4
 
-PODFILE CHECKSUM: 6fcff060058ea708e0837a1bcb9099c02d20bc3a
+PODFILE CHECKSUM: 72629a83131490e4c7ed4bce277c85931065bde6
 
 COCOAPODS: 1.3.1

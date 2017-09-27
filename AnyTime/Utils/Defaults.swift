@@ -22,13 +22,19 @@ public func registerDefaults() {
     ])
 }
 
+enum AnyTimeKey: String {
+    case favorites
+    case format
+}
+
 extension DefaultsKeys {
-    static let favorites = DefaultsKey<[String]>("favorites")
-    static let format = DefaultsKey<String>("format")
+    static let favorites = DefaultsKey<[String]>(AnyTimeKey.favorites.rawValue)
+    static let format = DefaultsKey<String>(AnyTimeKey.format.rawValue)
 }
 
 extension UserDefaults {
-    func favorites() -> [TimeZoneItem] {
+
+    func getFavorites() -> [TimeZoneItem] {
         let abbrDict = TimeZone.abbreviationDictionary
         return self[.favorites].map { key -> TimeZoneItem in
             let value = abbrDict[key]
