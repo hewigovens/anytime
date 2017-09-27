@@ -9,6 +9,7 @@
 import Foundation
 import Colours
 import Reusable
+import SwiftyUserDefaults
 
 extension TimeZoneItem {
     var area: (continent: String, city: String) {
@@ -26,7 +27,7 @@ class TimeZoneCell: UITableViewCell, Reusable {
     lazy var formatter: DateFormatter = {
         let dateformatter = DateFormatter()
         dateformatter.locale = Locale.current
-        dateformatter.setLocalizedDateFormatFromTemplate("HH:mm MMM d yyyy")
+        dateformatter.setLocalizedDateFormatFromTemplate(Defaults[.format])
         return dateformatter
     }()
 

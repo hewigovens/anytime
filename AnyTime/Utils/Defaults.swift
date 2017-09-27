@@ -10,18 +10,21 @@ import Foundation
 import SwiftyUserDefaults
 
 public func registerDefaults() {
-    UserDefaults.standard.register(defaults: ["favorites": [
+    UserDefaults.standard.register(defaults:[
+        "favorites": [
         "UTC",
         "GMT",
         "HKT",
         "JST",
         "CST",
-        "PDT"
-    ]])
+        "PDT"],
+        "format": "HH:mm MMM d yyyy"
+    ])
 }
 
 extension DefaultsKeys {
     static let favorites = DefaultsKey<[String]>("favorites")
+    static let format = DefaultsKey<String>("format")
 }
 
 extension UserDefaults {

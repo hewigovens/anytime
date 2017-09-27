@@ -23,12 +23,12 @@ class TimezonesViewController: UIViewController {
 
     lazy var tableView: UITableView = {
         let tableView = UITableView(frame: CGRect.zero, style: .plain)
-        tableView.backgroundColor = UIColor.clear
-        tableView.backgroundView = UIVisualEffectView(effect: UIBlurEffect(style: .dark))
+        tableView.backgroundColor = UIColor.iceberg()
+//        tableView.backgroundColor = UIColor.clear
+//        tableView.backgroundView = UIVisualEffectView(effect: UIBlurEffect(style: .light))
         tableView.delegate = self
         tableView.dataSource = self
         tableView.register(cellType: TimeZoneCell.self)
-        tableView.separatorStyle = .none
         tableView.tableFooterView = UIView()
         return tableView
     }()
@@ -73,12 +73,13 @@ class TimezonesViewController: UIViewController {
         }
     }
 
-    func add(item: TimeZoneItem) {
+    func add(item: TimeZoneItem) -> Bool {
         if self.set.contains(item) {
             let banner = NotificationBanner(title: "You have already added \(item.area.city).", style: .info)
             banner.duration = 2
             banner.show()
             self.banner = banner
+            return false
         } else {
             var favs = Defaults[.favorites]
             favs.append(item.abbr)
@@ -89,6 +90,7 @@ class TimezonesViewController: UIViewController {
             banner.duration = 2
             banner.show()
             self.banner = banner
+            return true
         }
     }
 
@@ -125,8 +127,13 @@ extension TimezonesViewController: UITableViewDelegate, UITableViewDataSource {
         guard let item = self.timezone(with: indexPath) else { return cell }
         cell.highlight()
         cell.textLabel?.text = item.area.city
-        cell.infoLabel?.text = item.timezone.offset(string: item.abbr)
-        cell.infoLabel?.sizeToFit()
+        cell.detailTextLabel?.text = item.timezone.offset(string: item.abbr)
+        if set.contains(item) {
+            cell.infoLabel?.text = "☆"
+            cell.infoLabel?.sizeToFit()
+        } else {
+            cell.infoLabel?.text = ""
+        }
         return cell
     }
 
@@ -145,10 +152,10 @@ extension TimezonesViewController: UITableViewDelegate, UITableViewDataSource {
 
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         let header = UIView()
-        header.backgroundColor = UIColor.midnightBlue()
+        header.backgroundColor = UIColor.iceberg()
         let label = UILabel()
         label.text = self.data[section].prefix
-        label.textColor = UIColor.ghostWhite()
+        label.textColor = UIColor.black25Percent()
         label.sizeToFit()
         header.addSubview(label)
         label.snp.makeConstraints { make in
@@ -162,6 +169,11 @@ extension TimezonesViewController: UITableViewDelegate, UITableViewDataSource {
         tableView.deselectRow(at: indexPath, animated: true)
         self.banner?.dismiss()
         guard let item = self.timezone(with: indexPath) else { return }
-        self.add(item: item)
+        if self.add(item: item) {
+            let cell = tableView.cellForRow(at: indexPath) as? TimeZoneCell
+            cell?.infoLabel?.text = "☆"
+            cell?.infoLabel?.sizeToFit()
+            cell?.setNeedsDisplay()
+        }
     }
 }

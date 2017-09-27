@@ -29,5 +29,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         UINavigationBar.appearance().isTranslucent = false
         UINavigationBar.appearance().shadowImage = UIImage()
         UINavigationBar.appearance().setBackgroundImage(UIImage(), for: .default)
+        UINavigationBar.appearance().titleTextAttributes = [NSAttributedStringKey.font: UIFont.systemFont(ofSize: 17, weight: .light)]
     }
 }

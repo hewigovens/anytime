@@ -13,15 +13,15 @@
 		BB1C598C1F7688F000808529 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BB1C598B1F7688F000808529 /* Assets.xcassets */; };
 		BB1C598F1F7688F000808529 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = BB1C598D1F7688F000808529 /* LaunchScreen.storyboard */; };
 		BB1C599A1F7688F000808529 /* AnyTimeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1C59991F7688F000808529 /* AnyTimeTests.swift */; };
+		BB3A1DCF1F7A0CE400F793F8 /* DatePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB3A1DCE1F7A0CE400F793F8 /* DatePicker.swift */; };
 		BB5BBA191F774E1300C87688 /* Defaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB5BBA181F774E1300C87688 /* Defaults.swift */; };
 		BB5BBA1B1F7755B500C87688 /* UIView+Frame.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB5BBA1A1F7755B500C87688 /* UIView+Frame.swift */; };
 		BB5BBA1D1F778F4100C87688 /* TimeZoneCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB5BBA1C1F778F4100C87688 /* TimeZoneCell.swift */; };
+		BB647A541F7B2D3800C3C2D4 /* UIView+Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB647A531F7B2D3800C3C2D4 /* UIView+Utils.swift */; };
+		BB647A581F7B43FD00C3C2D4 /* catchNSException.m in Sources */ = {isa = PBXBuildFile; fileRef = BB647A571F7B43FD00C3C2D4 /* catchNSException.m */; };
 		BB95E0651F789E5500858FD9 /* TimeZone+Offset.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB95E0641F789E5500858FD9 /* TimeZone+Offset.swift */; };
 		BB95E0671F78A8E700858FD9 /* TimeZoneItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB95E0661F78A8E700858FD9 /* TimeZoneItem.swift */; };
 		BB95E0691F78B6D800858FD9 /* DispatchQueue+Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB95E0681F78B6D800858FD9 /* DispatchQueue+Utils.swift */; };
-		BBE5E5FE1F779FCB00A9F715 /* StepCollectionViewFlowLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBE5E5FB1F779FCB00A9F715 /* StepCollectionViewFlowLayout.swift */; };
-		BBE5E5FF1F779FCB00A9F715 /* DateTimePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBE5E5FC1F779FCB00A9F715 /* DateTimePicker.swift */; };
-		BBE5E6001F779FCB00A9F715 /* DateCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBE5E5FD1F779FCB00A9F715 /* DateCollectionViewCell.swift */; };
 		BBE5E6051F77E83200A9F715 /* Array+Swap.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBE5E6041F77E83200A9F715 /* Array+Swap.swift */; };
 		BBE5E6071F7883E200A9F715 /* TimezonesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBE5E6061F7883E200A9F715 /* TimezonesViewController.swift */; };
 		BBE5E6091F7883EE00A9F715 /* SettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBE5E6081F7883EE00A9F715 /* SettingsViewController.swift */; };
@@ -53,15 +53,17 @@
 		BB1C59951F7688F000808529 /* AnyTimeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AnyTimeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		BB1C59991F7688F000808529 /* AnyTimeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnyTimeTests.swift; sourceTree = "<group>"; };
 		BB1C599B1F7688F000808529 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		BB3A1DCE1F7A0CE400F793F8 /* DatePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatePicker.swift; sourceTree = "<group>"; };
 		BB5BBA181F774E1300C87688 /* Defaults.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Defaults.swift; sourceTree = "<group>"; };
 		BB5BBA1A1F7755B500C87688 /* UIView+Frame.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView+Frame.swift"; sourceTree = "<group>"; };
 		BB5BBA1C1F778F4100C87688 /* TimeZoneCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeZoneCell.swift; sourceTree = "<group>"; };
+		BB647A531F7B2D3800C3C2D4 /* UIView+Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView+Utils.swift"; sourceTree = "<group>"; };
+		BB647A551F7B43FC00C3C2D4 /* AnyTime-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "AnyTime-Bridging-Header.h"; sourceTree = "<group>"; };
+		BB647A561F7B43FD00C3C2D4 /* catchNSException.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = catchNSException.h; sourceTree = "<group>"; };
+		BB647A571F7B43FD00C3C2D4 /* catchNSException.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = catchNSException.m; sourceTree = "<group>"; };
 		BB95E0641F789E5500858FD9 /* TimeZone+Offset.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TimeZone+Offset.swift"; sourceTree = "<group>"; };
 		BB95E0661F78A8E700858FD9 /* TimeZoneItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeZoneItem.swift; sourceTree = "<group>"; };
 		BB95E0681F78B6D800858FD9 /* DispatchQueue+Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DispatchQueue+Utils.swift"; sourceTree = "<group>"; };
-		BBE5E5FB1F779FCB00A9F715 /* StepCollectionViewFlowLayout.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StepCollectionViewFlowLayout.swift; sourceTree = "<group>"; };
-		BBE5E5FC1F779FCB00A9F715 /* DateTimePicker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DateTimePicker.swift; sourceTree = "<group>"; };
-		BBE5E5FD1F779FCB00A9F715 /* DateCollectionViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DateCollectionViewCell.swift; sourceTree = "<group>"; };
 		BBE5E6041F77E83200A9F715 /* Array+Swap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array+Swap.swift"; sourceTree = "<group>"; };
 		BBE5E6061F7883E200A9F715 /* TimezonesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimezonesViewController.swift; sourceTree = "<group>"; };
 		BBE5E6081F7883EE00A9F715 /* SettingsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewController.swift; sourceTree = "<group>"; };
@@ -120,8 +122,8 @@
 		BB1C59831F7688F000808529 /* AnyTime */ = {
 			isa = PBXGroup;
 			children = (
+				BB647A551F7B43FC00C3C2D4 /* AnyTime-Bridging-Header.h */,
 				BB1C59841F7688F000808529 /* AppDelegate.swift */,
-				BBE5E5FA1F779FCB00A9F715 /* DateTimePicker */,
 				BBE5E60A1F7887F000A9F715 /* View */,
 				BBE5E60B1F78880800A9F715 /* Utils */,
 				BB1C598B1F7688F000808529 /* Assets.xcassets */,
@@ -140,16 +142,6 @@
 			path = AnyTimeTests;
 			sourceTree = "<group>";
 		};
-		BBE5E5FA1F779FCB00A9F715 /* DateTimePicker */ = {
-			isa = PBXGroup;
-			children = (
-				BBE5E5FB1F779FCB00A9F715 /* StepCollectionViewFlowLayout.swift */,
-				BBE5E5FC1F779FCB00A9F715 /* DateTimePicker.swift */,
-				BBE5E5FD1F779FCB00A9F715 /* DateCollectionViewCell.swift */,
-			);
-			path = DateTimePicker;
-			sourceTree = "<group>";
-		};
 		BBE5E60A1F7887F000A9F715 /* View */ = {
 			isa = PBXGroup;
 			children = (
@@ -158,6 +150,8 @@
 				BB1C59861F7688F000808529 /* GlanceViewController.swift */,
 				BBE5E6061F7883E200A9F715 /* TimezonesViewController.swift */,
 				BBE5E6081F7883EE00A9F715 /* SettingsViewController.swift */,
+				BB3A1DCE1F7A0CE400F793F8 /* DatePicker.swift */,
+				BB647A531F7B2D3800C3C2D4 /* UIView+Utils.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -165,6 +159,8 @@
 		BBE5E60B1F78880800A9F715 /* Utils */ = {
 			isa = PBXGroup;
 			children = (
+				BB647A561F7B43FD00C3C2D4 /* catchNSException.h */,
+				BB647A571F7B43FD00C3C2D4 /* catchNSException.m */,
 				BBE5E6041F77E83200A9F715 /* Array+Swap.swift */,
 				BB5BBA181F774E1300C87688 /* Defaults.swift */,
 				BB5BBA1A1F7755B500C87688 /* UIView+Frame.swift */,
@@ -242,6 +238,7 @@
 				TargetAttributes = {
 					BB1C59801F7688F000808529 = {
 						CreatedOnToolsVersion = 9.0;
+						LastSwiftMigration = 0900;
 						ProvisioningStyle = Automatic;
 					};
 					BB1C59941F7688F000808529 = {
@@ -298,6 +295,7 @@
 			inputPaths = (
 				"${SRCROOT}/Pods/Target Support Files/Pods-AnyTime/Pods-AnyTime-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/Colours/Colours.framework",
+				"${BUILT_PRODUCTS_DIR}/FLEX/FLEX.framework",
 				"${BUILT_PRODUCTS_DIR}/FontAwesomeKit/FontAwesomeKit.framework",
 				"${BUILT_PRODUCTS_DIR}/MarqueeLabel/MarqueeLabel.framework",
 				"${BUILT_PRODUCTS_DIR}/NotificationBannerSwift/NotificationBannerSwift.framework",
@@ -308,6 +306,7 @@
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Colours.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FLEX.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FontAwesomeKit.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/MarqueeLabel.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/NotificationBannerSwift.framework",
@@ -428,14 +427,14 @@
 				BB5BBA191F774E1300C87688 /* Defaults.swift in Sources */,
 				BBE5E6071F7883E200A9F715 /* TimezonesViewController.swift in Sources */,
 				BB95E0651F789E5500858FD9 /* TimeZone+Offset.swift in Sources */,
-				BBE5E5FE1F779FCB00A9F715 /* StepCollectionViewFlowLayout.swift in Sources */,
 				BB95E0691F78B6D800858FD9 /* DispatchQueue+Utils.swift in Sources */,
-				BBE5E5FF1F779FCB00A9F715 /* DateTimePicker.swift in Sources */,
-				BBE5E6001F779FCB00A9F715 /* DateCollectionViewCell.swift in Sources */,
 				BB5BBA1D1F778F4100C87688 /* TimeZoneCell.swift in Sources */,
+				BB647A541F7B2D3800C3C2D4 /* UIView+Utils.swift in Sources */,
 				BB1C59871F7688F000808529 /* GlanceViewController.swift in Sources */,
 				BB95E0671F78A8E700858FD9 /* TimeZoneItem.swift in Sources */,
 				BB1C59851F7688F000808529 /* AppDelegate.swift in Sources */,
+				BB647A581F7B43FD00C3C2D4 /* catchNSException.m in Sources */,
+				BB3A1DCF1F7A0CE400F793F8 /* DatePicker.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -517,7 +516,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.3;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
@@ -568,7 +567,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.3;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
@@ -581,12 +580,15 @@
 			baseConfigurationReference = 25C6351D94FA2885C0F76D4D /* Pods-AnyTime.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = FH9QG7ZJR9;
 				INFOPLIST_FILE = AnyTime/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = in.fourplex.AnyTime;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "AnyTime/AnyTime-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 4.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -597,12 +599,14 @@
 			baseConfigurationReference = CBA4A04FE2BB193C59B31EA4 /* Pods-AnyTime.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = FH9QG7ZJR9;
 				INFOPLIST_FILE = AnyTime/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = in.fourplex.AnyTime;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "AnyTime/AnyTime-Bridging-Header.h";
 				SWIFT_VERSION = 4.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};

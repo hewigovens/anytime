@@ -18,6 +18,7 @@ class GlanceViewController: UITableViewController {
     var favs = [String]()
     var timezones = [TimeZoneItem]()
     var selectedDate: Date?
+    weak var picker: DatePicker?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -69,11 +70,13 @@ class GlanceViewController: UITableViewController {
         let topIndex = IndexPath(row: 0, section: 0)
         let secondIndex = IndexPath(row: 1, section: 0)
         if indexPath == topIndex {
-            self.showDatePicker()
+            let cell = tableView.cellForRow(at: topIndex) as? TimeZoneCell
+            self.showDatePicker(formatter: cell?.formatter)
             return
         }
         tableView.beginUpdates()
         self.timezones.move(at: indexPath.row, to: topIndex.row)
+        Defaults.set(.favorites, self.timezones.map { $0.abbr })
         tableView.moveRow(at: indexPath, to: topIndex)
         tableView.endUpdates()
 
@@ -122,25 +125,26 @@ class GlanceViewController: UITableViewController {
 extension GlanceViewController {
     @objc func addTimezone() {
         let vc = TimezonesViewController()
-        self.present(UINavigationController(rootViewController: vc), animated: true, completion: nil)
+        let nav = UINavigationController(rootViewController: vc)
+        nav.modalPresentationStyle = .overFullScreen
+        self.present(nav, animated: true, completion: nil)
     }
 
     @objc func showSettings() {
-        let vc = SettingsViewController(style: .grouped)
-        self.present(UINavigationController(rootViewController: vc), animated: true, completion: nil)
+        let vc = SettingsViewController(style: .plain)
+        let nav = UINavigationController(rootViewController: vc)
+        nav.modalPresentationStyle = .overFullScreen
+        self.present(nav, animated: true, completion: nil)
     }
 
-    func showDatePicker() {
-        let picker = DateTimePicker.show(selected: Date())
-        picker.todayButtonTitle = "Now"
-        picker.doneButtonTitle = "Done"
-        picker.timeZone = self.timezones[0].timezone
+    func showDatePicker(formatter: DateFormatter? = nil) {
+        guard self.picker == nil else { return }
 
-        let dateformatter = DateFormatter()
-        dateformatter.locale = Locale.current
-        dateformatter.setLocalizedDateFormatFromTemplate("HH:mm MMM d yyyy")
-        picker.dateFormat = dateformatter.dateFormat
-        picker.completionHandler = { [weak self] date in
+        let picker = DatePicker()
+        if let formatter = formatter {
+            picker.formatter = formatter
+        }
+        picker.selectCompletion = { [weak self] date in
             guard let ss = self else { return }
             ss.selectedDate = date
             for i in 0..<ss.timezones.count {
@@ -151,6 +155,8 @@ extension GlanceViewController {
                 cell.date = date
             }
         }
+        picker.showIn(view: self.navigationController?.view, duration: 0.7)
+        self.picker = picker
     }
 
     func configureNaviItem() {
@@ -187,7 +193,7 @@ extension GlanceViewController {
     func createHeader(height: CGFloat) -> UIView {
         let header = UIView()
         let label = UILabel()
-        label.text = "You're wasting time here."
+        label.text = "We're wasting time here."
         label.textColor = UIColor.black25Percent()
         label.sizeToFit()
         header.addSubview(label)
@@ -198,7 +204,7 @@ extension GlanceViewController {
             make.centerX.equalToSuperview()
         }
         let label2 = UILabel()
-        label2.text = "Fine, you win."
+        label2.text = "Fine."
         label2.textColor = label.textColor
         label2.sizeToFit()
         header.addSubview(label2)
