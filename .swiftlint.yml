@@ -6,6 +6,6 @@ excluded:
   - Pods
   - fastlane
   - .build
-  - AnyTime/DateTimePicker
+  - ./HalfModalPresentation
 
 force_cast: warning

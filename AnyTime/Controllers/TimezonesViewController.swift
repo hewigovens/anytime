@@ -15,7 +15,7 @@ import NotificationBannerSwift
 
 let timezonesCellId = "TimezonesCell"
 
-class TimezonesViewController: UIViewController {
+class TimezonesViewController: UIViewController, HalfModalPresentable {
 
     var data = [(prefix: String, items: [TimeZoneItem])]()
     var set = Set<TimeZoneItem>(Defaults.getFavorites())
@@ -24,8 +24,6 @@ class TimezonesViewController: UIViewController {
     lazy var tableView: UITableView = {
         let tableView = UITableView(frame: CGRect.zero, style: .plain)
         tableView.backgroundColor = UIColor.iceberg()
-//        tableView.backgroundColor = UIColor.clear
-//        tableView.backgroundView = UIVisualEffectView(effect: UIBlurEffect(style: .light))
         tableView.delegate = self
         tableView.dataSource = self
         tableView.register(cellType: TimeZoneCell.self)
@@ -58,10 +56,10 @@ class TimezonesViewController: UIViewController {
 
     func configureNaviItems() {
         self.title = "Timezones"
-        let size: CGFloat = 30
-        let icon = FAKIonIcons.iosCloseEmptyIcon(withSize: size)
-        let image = icon?.image(with: CGSize(width: size, height: size))
+        let image = FAKIonIcons.image(with: "ion-ios-close-empty", size: 30)
         self.navigationItem.rightBarButtonItem = UIBarButtonItem(image: image, style: .plain, target: self, action: #selector(close))
+        let up_image = FAKIonIcons.image(with: "ion-ios-arrow-up", size: 24)
+        self.navigationItem.leftBarButtonItem = UIBarButtonItem(image: up_image, style: .plain, target: self, action: #selector(maximize))
     }
 
     func configureSubviews() {
@@ -71,6 +69,10 @@ class TimezonesViewController: UIViewController {
             make.leading.trailing.bottom.equalToSuperview()
             make.top.equalToSuperview().offset(0)
         }
+    }
+
+    @objc func maximize() {
+        self.maximizeToFullScreen()
     }
 
     func add(item: TimeZoneItem) -> Bool {
@@ -129,11 +131,12 @@ extension TimezonesViewController: UITableViewDelegate, UITableViewDataSource {
         cell.textLabel?.text = item.area.city
         cell.detailTextLabel?.text = item.timezone.offset(string: item.abbr)
         if set.contains(item) {
-            cell.infoLabel?.text = "☆"
-            cell.infoLabel?.sizeToFit()
+            cell.infoLabel?.text = "\u{f443}"
         } else {
-            cell.infoLabel?.text = ""
+            cell.infoLabel?.text = "\u{f442}"
         }
+        cell.infoLabel?.font = FAKIonIcons.iconFont(withSize: 18)
+        cell.infoLabel?.sizeToFit()
         return cell
     }
 
@@ -171,7 +174,7 @@ extension TimezonesViewController: UITableViewDelegate, UITableViewDataSource {
         guard let item = self.timezone(with: indexPath) else { return }
         if self.add(item: item) {
             let cell = tableView.cellForRow(at: indexPath) as? TimeZoneCell
-            cell?.infoLabel?.text = "☆"
+            cell?.infoLabel?.text = "\u{f443}"
             cell?.infoLabel?.sizeToFit()
             cell?.setNeedsDisplay()
         }

@@ -19,6 +19,12 @@
 		BB5BBA1D1F778F4100C87688 /* TimeZoneCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB5BBA1C1F778F4100C87688 /* TimeZoneCell.swift */; };
 		BB647A541F7B2D3800C3C2D4 /* UIView+Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB647A531F7B2D3800C3C2D4 /* UIView+Utils.swift */; };
 		BB647A581F7B43FD00C3C2D4 /* catchNSException.m in Sources */ = {isa = PBXBuildFile; fileRef = BB647A571F7B43FD00C3C2D4 /* catchNSException.m */; };
+		BB647A611F7D3E1300C3C2D4 /* HalfModalInteractiveTransition.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB647A5C1F7D3E1300C3C2D4 /* HalfModalInteractiveTransition.swift */; };
+		BB647A621F7D3E1300C3C2D4 /* HalfModalTransitionAnimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB647A5D1F7D3E1300C3C2D4 /* HalfModalTransitionAnimator.swift */; };
+		BB647A631F7D3E1300C3C2D4 /* HalfModalTransitioningDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB647A5E1F7D3E1300C3C2D4 /* HalfModalTransitioningDelegate.swift */; };
+		BB647A641F7D3E1300C3C2D4 /* HalfModalPresentationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB647A601F7D3E1300C3C2D4 /* HalfModalPresentationController.swift */; };
+		BB647A671F7D3F7800C3C2D4 /* AppNavController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB647A661F7D3F7800C3C2D4 /* AppNavController.swift */; };
+		BB647A691F7D45A300C3C2D4 /* FAK+Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB647A681F7D45A300C3C2D4 /* FAK+Utils.swift */; };
 		BB95E0651F789E5500858FD9 /* TimeZone+Offset.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB95E0641F789E5500858FD9 /* TimeZone+Offset.swift */; };
 		BB95E0671F78A8E700858FD9 /* TimeZoneItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB95E0661F78A8E700858FD9 /* TimeZoneItem.swift */; };
 		BB95E0691F78B6D800858FD9 /* DispatchQueue+Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB95E0681F78B6D800858FD9 /* DispatchQueue+Utils.swift */; };
@@ -61,6 +67,12 @@
 		BB647A551F7B43FC00C3C2D4 /* AnyTime-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "AnyTime-Bridging-Header.h"; sourceTree = "<group>"; };
 		BB647A561F7B43FD00C3C2D4 /* catchNSException.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = catchNSException.h; sourceTree = "<group>"; };
 		BB647A571F7B43FD00C3C2D4 /* catchNSException.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = catchNSException.m; sourceTree = "<group>"; };
+		BB647A5C1F7D3E1300C3C2D4 /* HalfModalInteractiveTransition.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HalfModalInteractiveTransition.swift; sourceTree = "<group>"; };
+		BB647A5D1F7D3E1300C3C2D4 /* HalfModalTransitionAnimator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HalfModalTransitionAnimator.swift; sourceTree = "<group>"; };
+		BB647A5E1F7D3E1300C3C2D4 /* HalfModalTransitioningDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HalfModalTransitioningDelegate.swift; sourceTree = "<group>"; };
+		BB647A601F7D3E1300C3C2D4 /* HalfModalPresentationController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HalfModalPresentationController.swift; sourceTree = "<group>"; };
+		BB647A661F7D3F7800C3C2D4 /* AppNavController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppNavController.swift; sourceTree = "<group>"; };
+		BB647A681F7D45A300C3C2D4 /* FAK+Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FAK+Utils.swift"; sourceTree = "<group>"; };
 		BB95E0641F789E5500858FD9 /* TimeZone+Offset.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TimeZone+Offset.swift"; sourceTree = "<group>"; };
 		BB95E0661F78A8E700858FD9 /* TimeZoneItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeZoneItem.swift; sourceTree = "<group>"; };
 		BB95E0681F78B6D800858FD9 /* DispatchQueue+Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DispatchQueue+Utils.swift"; sourceTree = "<group>"; };
@@ -122,8 +134,10 @@
 		BB1C59831F7688F000808529 /* AnyTime */ = {
 			isa = PBXGroup;
 			children = (
+				BB647A5A1F7D3E1300C3C2D4 /* HalfModalPresentation */,
 				BB647A551F7B43FC00C3C2D4 /* AnyTime-Bridging-Header.h */,
 				BB1C59841F7688F000808529 /* AppDelegate.swift */,
+				BB647A651F7D3F0200C3C2D4 /* Controllers */,
 				BBE5E60A1F7887F000A9F715 /* View */,
 				BBE5E60B1F78880800A9F715 /* Utils */,
 				BB1C598B1F7688F000808529 /* Assets.xcassets */,
@@ -142,16 +156,50 @@
 			path = AnyTimeTests;
 			sourceTree = "<group>";
 		};
+		BB647A5A1F7D3E1300C3C2D4 /* HalfModalPresentation */ = {
+			isa = PBXGroup;
+			children = (
+				BB647A661F7D3F7800C3C2D4 /* AppNavController.swift */,
+				BB647A5B1F7D3E1300C3C2D4 /* Transitioning */,
+				BB647A5F1F7D3E1300C3C2D4 /* Presentation */,
+			);
+			path = HalfModalPresentation;
+			sourceTree = SOURCE_ROOT;
+		};
+		BB647A5B1F7D3E1300C3C2D4 /* Transitioning */ = {
+			isa = PBXGroup;
+			children = (
+				BB647A5C1F7D3E1300C3C2D4 /* HalfModalInteractiveTransition.swift */,
+				BB647A5D1F7D3E1300C3C2D4 /* HalfModalTransitionAnimator.swift */,
+				BB647A5E1F7D3E1300C3C2D4 /* HalfModalTransitioningDelegate.swift */,
+			);
+			path = Transitioning;
+			sourceTree = "<group>";
+		};
+		BB647A5F1F7D3E1300C3C2D4 /* Presentation */ = {
+			isa = PBXGroup;
+			children = (
+				BB647A601F7D3E1300C3C2D4 /* HalfModalPresentationController.swift */,
+			);
+			path = Presentation;
+			sourceTree = "<group>";
+		};
+		BB647A651F7D3F0200C3C2D4 /* Controllers */ = {
+			isa = PBXGroup;
+			children = (
+				BB1C59861F7688F000808529 /* GlanceViewController.swift */,
+				BBE5E6061F7883E200A9F715 /* TimezonesViewController.swift */,
+				BBE5E6081F7883EE00A9F715 /* SettingsViewController.swift */,
+			);
+			path = Controllers;
+			sourceTree = "<group>";
+		};
 		BBE5E60A1F7887F000A9F715 /* View */ = {
 			isa = PBXGroup;
 			children = (
 				BB95E0661F78A8E700858FD9 /* TimeZoneItem.swift */,
 				BB5BBA1C1F778F4100C87688 /* TimeZoneCell.swift */,
-				BB1C59861F7688F000808529 /* GlanceViewController.swift */,
-				BBE5E6061F7883E200A9F715 /* TimezonesViewController.swift */,
-				BBE5E6081F7883EE00A9F715 /* SettingsViewController.swift */,
 				BB3A1DCE1F7A0CE400F793F8 /* DatePicker.swift */,
-				BB647A531F7B2D3800C3C2D4 /* UIView+Utils.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -161,8 +209,10 @@
 			children = (
 				BB647A561F7B43FD00C3C2D4 /* catchNSException.h */,
 				BB647A571F7B43FD00C3C2D4 /* catchNSException.m */,
+				BB647A681F7D45A300C3C2D4 /* FAK+Utils.swift */,
 				BBE5E6041F77E83200A9F715 /* Array+Swap.swift */,
 				BB5BBA181F774E1300C87688 /* Defaults.swift */,
+				BB647A531F7B2D3800C3C2D4 /* UIView+Utils.swift */,
 				BB5BBA1A1F7755B500C87688 /* UIView+Frame.swift */,
 				BB95E0641F789E5500858FD9 /* TimeZone+Offset.swift */,
 				BB95E0681F78B6D800858FD9 /* DispatchQueue+Utils.swift */,
@@ -444,12 +494,18 @@
 				BB95E0651F789E5500858FD9 /* TimeZone+Offset.swift in Sources */,
 				BB95E0691F78B6D800858FD9 /* DispatchQueue+Utils.swift in Sources */,
 				BB5BBA1D1F778F4100C87688 /* TimeZoneCell.swift in Sources */,
+				BB647A691F7D45A300C3C2D4 /* FAK+Utils.swift in Sources */,
 				BB647A541F7B2D3800C3C2D4 /* UIView+Utils.swift in Sources */,
 				BB1C59871F7688F000808529 /* GlanceViewController.swift in Sources */,
 				BB95E0671F78A8E700858FD9 /* TimeZoneItem.swift in Sources */,
+				BB647A611F7D3E1300C3C2D4 /* HalfModalInteractiveTransition.swift in Sources */,
 				BB1C59851F7688F000808529 /* AppDelegate.swift in Sources */,
 				BB647A581F7B43FD00C3C2D4 /* catchNSException.m in Sources */,
+				BB647A671F7D3F7800C3C2D4 /* AppNavController.swift in Sources */,
+				BB647A641F7D3E1300C3C2D4 /* HalfModalPresentationController.swift in Sources */,
+				BB647A621F7D3E1300C3C2D4 /* HalfModalTransitionAnimator.swift in Sources */,
 				BB3A1DCF1F7A0CE400F793F8 /* DatePicker.swift in Sources */,
+				BB647A631F7D3E1300C3C2D4 /* HalfModalTransitioningDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

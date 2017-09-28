@@ -25,14 +25,7 @@ struct SettingItem {
     var action: (() -> Void)?
 }
 
-extension FAKIcon {
-    class func image(with identifier: String, size: Int = 22) -> UIImage? {
-        let icon = try? self.init(identifier: identifier, size: CGFloat(size))
-        return icon?.image(with: CGSize(width: size, height: size))
-    }
-}
-
-class SettingsViewController: UITableViewController {
+class SettingsViewController: UITableViewController, HalfModalPresentable {
 
     var sections = [SettingSection]()
 
@@ -71,21 +64,23 @@ class SettingsViewController: UITableViewController {
 
     func configureNaviItems() {
         self.title = "Settings"
-        let size: CGFloat = 30
-        let icon = FAKIonIcons.iosCloseEmptyIcon(withSize: size)
-        let image = icon?.image(with: CGSize(width: size, height: size))
+        let image = FAKIonIcons.image(with: "ion-ios-close-empty", size: 30)
         self.navigationItem.leftBarButtonItem = UIBarButtonItem(image: image, style: .plain, target: self, action: #selector(close))
+        let up_image = FAKIonIcons.image(with: "ion-ios-arrow-up", size: 24)
+        self.navigationItem.rightBarButtonItem = UIBarButtonItem(image: up_image, style: .plain, target: self, action: #selector(maximize))
     }
     func configureSubviews() {
         self.tableView.backgroundColor = UIColor.iceberg()
-//        self.tableView.backgroundColor = .clear
-//        self.tableView.backgroundView = UIVisualEffectView(effect: UIBlurEffect(style: .extraLight))
         self.tableView.register(UITableViewCell.self, forCellReuseIdentifier: reuseId)
         self.tableView.tableFooterView = self.createFooterView()
     }
 
     @objc func close() {
         self.navigationController?.dismiss(animated: true, completion: nil)
+    }
+
+    @objc func maximize() {
+        self.maximizeToFullScreen()
     }
 }
 

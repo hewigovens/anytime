@@ -15,10 +15,12 @@ import FontAwesomeKit
 
 class GlanceViewController: UITableViewController {
 
+    let feedback = UIImpactFeedbackGenerator(style: .light)
     var favs = [String]()
     var timezones = [TimeZoneItem]()
     var selectedDate: Date?
     weak var picker: DatePicker?
+    var halfModalTransitioningDelegate: HalfModalTransitioningDelegate?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -57,7 +59,7 @@ class GlanceViewController: UITableViewController {
     }
 
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-
+        self.feedback.impactOccurred()
         tableView.deselectRow(at: indexPath, animated: true)
         let topIndex = IndexPath(row: 0, section: 0)
         let secondIndex = IndexPath(row: 1, section: 0)
@@ -144,14 +146,18 @@ extension GlanceViewController {
     @objc func addTimezone() {
         let vc = TimezonesViewController()
         let nav = UINavigationController(rootViewController: vc)
-        nav.modalPresentationStyle = .overFullScreen
+        self.halfModalTransitioningDelegate = HalfModalTransitioningDelegate(viewController: self, presentingViewController: nav)
+        nav.modalPresentationStyle = .custom
+        nav.transitioningDelegate = self.halfModalTransitioningDelegate
         self.present(nav, animated: true, completion: nil)
     }
 
     @objc func showSettings() {
         let vc = SettingsViewController(style: .plain)
         let nav = UINavigationController(rootViewController: vc)
-        nav.modalPresentationStyle = .overFullScreen
+        self.halfModalTransitioningDelegate = HalfModalTransitioningDelegate(viewController: self, presentingViewController: nav)
+        nav.modalPresentationStyle = .custom
+        nav.transitioningDelegate = self.halfModalTransitioningDelegate
         self.present(nav, animated: true, completion: nil)
     }
 
