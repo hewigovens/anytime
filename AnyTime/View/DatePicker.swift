@@ -24,6 +24,15 @@ class DatePicker: UIView {
 
     public var formatter = DateFormatter()
 
+    public var timezone: TimeZone? {
+        get {
+            return picker.timeZone
+        }
+        set {
+            picker.timeZone = newValue
+        }
+    }
+
     public func showIn(view: UIView?, duration: TimeInterval = 1) {
         guard let view = view else { return }
 
@@ -117,6 +126,7 @@ class DatePicker: UIView {
         let button = UIButton(type: .system)
         button.setTitle("Done", for: .normal)
         button.setTitleColor(UIColor.ghostWhite(), for: .normal)
+        button.titleLabel?.font = UIFont.systemFont(ofSize: 16)
         button.addTarget(self, action: #selector(doneButtonTapped), for: .touchUpInside)
         return button
     }()

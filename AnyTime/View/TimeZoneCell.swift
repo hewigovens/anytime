@@ -49,6 +49,7 @@ class TimeZoneCell: UITableViewCell, Reusable {
         var label = self.accessoryView as? UILabel
         if label == nil {
             label = UILabel()
+            label?.adjustsFontSizeToFitWidth = true
             label?.textAlignment = .right
             label?.font = UIFont.monospacedDigitSystemFont(ofSize: 16, weight: UIFont.Weight.medium)
             self.textLabel?.font = UIFont.monospacedDigitSystemFont(ofSize: 18, weight: UIFont.Weight.medium)
@@ -87,8 +88,13 @@ class TimeZoneCell: UITableViewCell, Reusable {
 
         self.textLabel?.text = timezone.timezone.offset(string: timezone.abbr)
         self.detailTextLabel?.text = timezone.title.replacingOccurrences(of: "_", with: " ")
+        self.textLabel?.setContentHuggingPriority(UILayoutPriority.defaultHigh, for: .horizontal)
         self.infoLabel?.text = formatter.string(from: self.date ?? Date())
         self.infoLabel?.sizeToFit()
+        let max = self.fp_width / 3 * 2
+        if let width = self.infoLabel?.fp_width, width > max {
+            self.infoLabel?.fp_width = max
+        }
         self.setNeedsDisplay()
     }
 }

@@ -15,12 +15,12 @@ let reuseId = "SettingsCell"
 
 struct SettingSection {
     let title: String
-    let items: [SettingItem]
+    var items: [SettingItem]
 }
 
 struct SettingItem {
     let title: String
-    let value: String
+    var value: String
     var icon: UIImage?
     var action: (() -> Void)?
 }
@@ -35,17 +35,32 @@ class SettingsViewController: UITableViewController, HalfModalPresentable {
         configureNaviItems()
         configureSubviews()
     }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        updateFormatIfNeeded()
+    }
+
+    func updateFormatIfNeeded() {
+        if sections[0].items[0].value != Defaults[.format] {
+            sections[0].items[0].value = Defaults[.format]
+            tableView.reloadRows(at: [IndexPath(row: 0, section: 0)], with: .automatic)
+        }
+    }
+
     func configureData() {
 
         sections.append(SettingSection(title: "Format", items: [
-            SettingItem(title: "Format", value: Defaults[.format], icon: FAKIonIcons.image(with: "ion-ios-clock-outline"), action: {
-                //
+            SettingItem(title: "Format", value: Defaults[.format], icon: FAKIonIcons.image(with: "ion-ios-clock-outline"), action: { [weak self] in
+                let editor = FormatEditorViewController()
+                self?.navigationController?.pushViewController(editor, animated: true)
             })
         ]))
 
         sections.append(SettingSection(title: "Donate", items: [
-            SettingItem(title: "Donate bitcoin", value: "", icon: FAKIonIcons.image(with: "ion-social-bitcoin-outline"), action: {
-
+            SettingItem(title: "Donate", value: "", icon: FAKIonIcons.image(with: "ion-social-bitcoin-outline"), action: { [weak self] in
+                let vc = DonationViewController()
+                self?.navigationController?.pushViewController(vc, animated: true)
             })
         ]))
 
@@ -53,11 +68,16 @@ class SettingsViewController: UITableViewController, HalfModalPresentable {
             SettingItem(title: "Rate Us", value: "", icon: FAKIonIcons.image(with: "ion-ios-heart-outline"), action: {
                 SKStoreReviewController.requestReview()
             }),
-            SettingItem(title: "Feedback", value: "", icon: FAKIonIcons.image(with: "ion-ios-email-outline"), action: {
-                //
+            SettingItem(title: "Feedback", value: "", icon: FAKIonIcons.image(with: "ion-ios-email-outline"), action: { [weak self] in
+                if let result = self?.canSendMail, result == true {
+                    self?.feedbackWithEmail()
+                } else {
+                    self?.feedbackWithMailTo()
+                }
             }),
-            SettingItem(title: "About", value: "", icon: FAKIonIcons.image(with: "ion-ios-information-outline"), action: {
-                //
+            SettingItem(title: "About", value: "", icon: FAKIonIcons.image(with: "ion-ios-information-outline"), action: { [weak self] in
+                self?.maximize()
+                self?.tableView.setContentOffset(CGPoint(x: 0, y: 64), animated: true)
             })
         ]))
     }

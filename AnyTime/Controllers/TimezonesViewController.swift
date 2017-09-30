@@ -77,7 +77,7 @@ class TimezonesViewController: UIViewController, HalfModalPresentable {
 
     func add(item: TimeZoneItem) -> Bool {
         if self.set.contains(item) {
-            let banner = NotificationBanner(title: "You have already added \(item.area.city).", style: .info)
+            let banner = NotificationBanner(title: "You have already added \(item.area.city).", style: .warning)
             banner.duration = 2
             banner.show()
             self.banner = banner
@@ -89,7 +89,7 @@ class TimezonesViewController: UIViewController, HalfModalPresentable {
             Defaults.synchronize()
             set.insert(item)
             let banner = NotificationBanner(title: "\(item.area.city) added successfully.", style: .success)
-            banner.duration = 2
+            banner.duration = 1.5
             banner.show()
             self.banner = banner
             return true

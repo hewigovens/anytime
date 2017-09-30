@@ -17,15 +17,20 @@ class GlanceViewController: UITableViewController {
 
     let feedback = UIImpactFeedbackGenerator(style: .light)
     var favs = [String]()
+    var dateformat = ""
     var timezones = [TimeZoneItem]()
     var selectedDate: Date?
     weak var picker: DatePicker?
+
+    //swiftlint:disable weak_delegate
     var halfModalTransitioningDelegate: HalfModalTransitioningDelegate?
+    //swiftlint:enable weak_delegate
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
         self.favs = Defaults[.favorites]
+        self.dateformat = Defaults[.format]
         self.configureNaviItem()
         self.configureData()
         self.configureSubviews()
@@ -45,6 +50,7 @@ class GlanceViewController: UITableViewController {
             return cell
         }
         let timezone = self.timezones[indexPath.row]
+        cell.formatter.setLocalizedDateFormatFromTemplate(self.dateformat)
         cell.date = self.selectedDate
         cell.timezone = timezone
         return cell
@@ -65,7 +71,7 @@ class GlanceViewController: UITableViewController {
         let secondIndex = IndexPath(row: 1, section: 0)
         if indexPath == topIndex {
             let cell = tableView.cellForRow(at: topIndex) as? TimeZoneCell
-            self.showDatePicker(formatter: cell?.formatter)
+            self.showDatePicker(formatter: cell?.formatter, timezone: cell?.timezone?.timezone)
             return
         }
         tableView.beginUpdates()
@@ -136,7 +142,13 @@ class GlanceViewController: UITableViewController {
                 self.tableView.reloadData()
             }
         } else if keyPath == AnyTimeKey.format.rawValue {
-            //
+            guard let new = change[NSKeyValueChangeKey.newKey] as? String else {
+                return
+            }
+            if self.dateformat != new {
+                self.dateformat = new
+                self.tableView.reloadData()
+            }
         }
     }
     //swiftlint:enable block_based_kvo
@@ -161,13 +173,14 @@ extension GlanceViewController {
         self.present(nav, animated: true, completion: nil)
     }
 
-    func showDatePicker(formatter: DateFormatter? = nil) {
+    func showDatePicker(formatter: DateFormatter? = nil, timezone: TimeZone? = nil) {
         guard self.picker == nil else { return }
 
         let picker = DatePicker()
         if let formatter = formatter {
             picker.formatter = formatter
         }
+        picker.timezone = timezone
         picker.selectCompletion = { [weak self] date in
             guard let ss = self else { return }
             ss.selectedDate = date
