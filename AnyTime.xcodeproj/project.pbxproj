@@ -8,6 +8,9 @@
 
 /* Begin PBXBuildFile section */
 		22DEC68C9599669BB0886F43 /* Pods_AnyTimeTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 93776C7A6C2C5441B909D6BD /* Pods_AnyTimeTests.framework */; };
+		BB03DCD31F8265EE00318D16 /* TimezonesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB03DCD21F8265EE00318D16 /* TimezonesViewModel.swift */; };
+		BB03DCD51F8269C800318D16 /* UITableViewCell+SettingItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB03DCD41F8269C800318D16 /* UITableViewCell+SettingItem.swift */; };
+		BB03DCD71F8269FF00318D16 /* SettingsModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB03DCD61F8269FF00318D16 /* SettingsModel.swift */; };
 		BB1716D31F82197000E7460D /* String+Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1716D21F82197000E7460D /* String+Utils.swift */; };
 		BB1C59851F7688F000808529 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1C59841F7688F000808529 /* AppDelegate.swift */; };
 		BB1C59871F7688F000808529 /* GlanceViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1C59861F7688F000808529 /* GlanceViewController.swift */; };
@@ -59,6 +62,9 @@
 		50AA5C52977D285E3C95380F /* Pods-AnyTimeTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AnyTimeTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-AnyTimeTests/Pods-AnyTimeTests.debug.xcconfig"; sourceTree = "<group>"; };
 		60E57975B65C320023AD224F /* Pods_AnyTime.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_AnyTime.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		93776C7A6C2C5441B909D6BD /* Pods_AnyTimeTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_AnyTimeTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		BB03DCD21F8265EE00318D16 /* TimezonesViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimezonesViewModel.swift; sourceTree = "<group>"; };
+		BB03DCD41F8269C800318D16 /* UITableViewCell+SettingItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UITableViewCell+SettingItem.swift"; sourceTree = "<group>"; };
+		BB03DCD61F8269FF00318D16 /* SettingsModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsModel.swift; sourceTree = "<group>"; };
 		BB1716D21F82197000E7460D /* String+Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+Utils.swift"; sourceTree = "<group>"; };
 		BB1C59811F7688F000808529 /* AnyTime.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AnyTime.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		BB1C59841F7688F000808529 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -129,6 +135,25 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		BB03DCD01F82657100318D16 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				BB95E0661F78A8E700858FD9 /* TimeZoneItem.swift */,
+				BB95E0641F789E5500858FD9 /* TimeZone+Offset.swift */,
+				BB03DCD61F8269FF00318D16 /* SettingsModel.swift */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
+		BB03DCD11F82659500318D16 /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				BBC1354C1F7F76A600247325 /* GlanceViewModel.swift */,
+				BB03DCD21F8265EE00318D16 /* TimezonesViewModel.swift */,
+			);
+			path = ViewModel;
+			sourceTree = "<group>";
+		};
 		BB1C59781F7688F000808529 = {
 			isa = PBXGroup;
 			children = (
@@ -156,8 +181,10 @@
 				BB647A5A1F7D3E1300C3C2D4 /* HalfModalPresentation */,
 				BB647A551F7B43FC00C3C2D4 /* AnyTime-Bridging-Header.h */,
 				BB1C59841F7688F000808529 /* AppDelegate.swift */,
-				BB647A651F7D3F0200C3C2D4 /* Controllers */,
-				BBE5E60A1F7887F000A9F715 /* View */,
+				BB03DCD11F82659500318D16 /* ViewModel */,
+				BB647A651F7D3F0200C3C2D4 /* View */,
+				BB03DCD01F82657100318D16 /* Model */,
+				BBE5E60A1F7887F000A9F715 /* Controls */,
 				BBE5E60B1F78880800A9F715 /* Utils */,
 				BB1C598B1F7688F000808529 /* Assets.xcassets */,
 				BB1C598D1F7688F000808529 /* LaunchScreen.storyboard */,
@@ -214,27 +241,28 @@
 			path = Presentation;
 			sourceTree = "<group>";
 		};
-		BB647A651F7D3F0200C3C2D4 /* Controllers */ = {
+		BB647A651F7D3F0200C3C2D4 /* View */ = {
 			isa = PBXGroup;
 			children = (
 				BB1C59861F7688F000808529 /* GlanceViewController.swift */,
-				BBC1354C1F7F76A600247325 /* GlanceViewModel.swift */,
 				BBE5E6061F7883E200A9F715 /* TimezonesViewController.swift */,
 				BBE5E6081F7883EE00A9F715 /* SettingsViewController.swift */,
 				BB5678C21F7F3D68004A7361 /* DonationViewController.swift */,
 				BB5678C61F7F41CC004A7361 /* FormatEditorViewController.swift */,
 			);
-			path = Controllers;
+			path = View;
 			sourceTree = "<group>";
 		};
-		BBE5E60A1F7887F000A9F715 /* View */ = {
+		BBE5E60A1F7887F000A9F715 /* Controls */ = {
 			isa = PBXGroup;
 			children = (
-				BB95E0661F78A8E700858FD9 /* TimeZoneItem.swift */,
 				BB5BBA1C1F778F4100C87688 /* TimeZoneCell.swift */,
 				BB3A1DCE1F7A0CE400F793F8 /* DatePicker.swift */,
+				BB647A531F7B2D3800C3C2D4 /* UIView+Utils.swift */,
+				BB5BBA1A1F7755B500C87688 /* UIView+Frame.swift */,
+				BB03DCD41F8269C800318D16 /* UITableViewCell+SettingItem.swift */,
 			);
-			path = View;
+			path = Controls;
 			sourceTree = "<group>";
 		};
 		BBE5E60B1F78880800A9F715 /* Utils */ = {
@@ -246,9 +274,6 @@
 				BB647A681F7D45A300C3C2D4 /* FAK+Utils.swift */,
 				BBE5E6041F77E83200A9F715 /* Array+Swap.swift */,
 				BB5BBA181F774E1300C87688 /* Defaults.swift */,
-				BB647A531F7B2D3800C3C2D4 /* UIView+Utils.swift */,
-				BB5BBA1A1F7755B500C87688 /* UIView+Frame.swift */,
-				BB95E0641F789E5500858FD9 /* TimeZone+Offset.swift */,
 				BB95E0681F78B6D800858FD9 /* DispatchQueue+Utils.swift */,
 				BB1716D21F82197000E7460D /* String+Utils.swift */,
 			);
@@ -528,13 +553,16 @@
 				BB5678D51F7F52F1004A7361 /* Feedbackable.swift in Sources */,
 				BBE5E6071F7883E200A9F715 /* TimezonesViewController.swift in Sources */,
 				BB95E0651F789E5500858FD9 /* TimeZone+Offset.swift in Sources */,
+				BB03DCD31F8265EE00318D16 /* TimezonesViewModel.swift in Sources */,
 				BB5678C31F7F3D68004A7361 /* DonationViewController.swift in Sources */,
 				BB95E0691F78B6D800858FD9 /* DispatchQueue+Utils.swift in Sources */,
 				BB5BBA1D1F778F4100C87688 /* TimeZoneCell.swift in Sources */,
 				BB5678C71F7F41CC004A7361 /* FormatEditorViewController.swift in Sources */,
 				BB647A691F7D45A300C3C2D4 /* FAK+Utils.swift in Sources */,
+				BB03DCD51F8269C800318D16 /* UITableViewCell+SettingItem.swift in Sources */,
 				BB647A541F7B2D3800C3C2D4 /* UIView+Utils.swift in Sources */,
 				BB5678D21F7F493D004A7361 /* CIColorExtension.swift in Sources */,
+				BB03DCD71F8269FF00318D16 /* SettingsModel.swift in Sources */,
 				BB1C59871F7688F000808529 /* GlanceViewController.swift in Sources */,
 				BB5678D01F7F493D004A7361 /* UIImageViewExtension.swift in Sources */,
 				BB95E0671F78A8E700858FD9 /* TimeZoneItem.swift in Sources */,

@@ -12,4 +12,8 @@ extension String {
     var length: Int {
         return self.lengthOfBytes(using: .utf8)
     }
+
+    var trimmed: String {
+        return self.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
 }

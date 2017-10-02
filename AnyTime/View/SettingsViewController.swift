@@ -11,20 +11,6 @@ import FontAwesomeKit
 import SwiftyUserDefaults
 import StoreKit
 
-let reuseId = "SettingsCell"
-
-struct SettingSection {
-    let title: String
-    var items: [SettingItem]
-}
-
-struct SettingItem {
-    let title: String
-    var value: String
-    var icon: UIImage?
-    var action: (() -> Void)?
-}
-
 class SettingsViewController: UITableViewController, HalfModalPresentable {
 
     var sections = [SettingSection]()
@@ -96,9 +82,10 @@ class SettingsViewController: UITableViewController, HalfModalPresentable {
         let up_image = FAKIonIcons.image(with: "ion-ios-arrow-up", size: 24)
         self.navigationItem.rightBarButtonItem = UIBarButtonItem(image: up_image, style: .plain, target: self, action: #selector(maximize))
     }
+
     func configureSubviews() {
         self.tableView.backgroundColor = UIColor.iceberg()
-        self.tableView.register(UITableViewCell.self, forCellReuseIdentifier: reuseId)
+        self.tableView.register(UITableViewCell.self, forCellReuseIdentifier: UITableViewCell.settingsCellId)
         self.tableView.tableFooterView = self.createFooterView()
     }
 
@@ -133,23 +120,9 @@ extension SettingsViewController {
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: reuseId, for: indexPath)
+        let cell = tableView.dequeueReusableCell(withIdentifier: UITableViewCell.settingsCellId, for: indexPath)
         let item = sections[indexPath.section].items[indexPath.row]
-        cell.textLabel?.text = item.title
-        cell.textLabel?.font = UIFont.systemFont(ofSize: 15)
-        cell.textLabel?.textColor = UIColor.black25Percent()
-        cell.imageView?.image = item.icon
-        if item.value.length > 0 {
-            var label = cell.accessoryView as? UILabel
-            if label == nil {
-                label = UILabel()
-                label?.font = UIFont.systemFont(ofSize: 15)
-                label?.textColor = UIColor.black25Percent()
-                cell.accessoryView = label
-            }
-            label?.text = item.value
-            label?.sizeToFit()
-        }
+        cell.configure(item: item)
         return cell
     }
 
@@ -172,9 +145,7 @@ extension SettingsViewController {
         }
 
         return (UIScreen.main.bounds.size.height
-        - CGFloat(height)
-        - statusBarHeight
-        - naviBarHeight)
+        - CGFloat(height) - statusBarHeight - naviBarHeight)
     }
 
     func createFooterView() -> UIView {

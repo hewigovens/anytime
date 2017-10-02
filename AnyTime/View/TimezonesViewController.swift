@@ -17,22 +17,35 @@ let timezonesCellId = "TimezonesCell"
 
 class TimezonesViewController: UIViewController, HalfModalPresentable {
 
-    var data = [(prefix: String, items: [TimeZoneItem])]()
-    var set = Set<TimeZoneItem>()
+    lazy var viewModel: TimezonesViewModel = {
+        let vm = TimezonesViewModel()
+        vm.owner = self
+        return vm
+    }()
     weak var banner: NotificationBanner?
 
     lazy var searchView: UIView = {
-        let search = UIView()
+        let search = UIView(backgroundColor: UIColor.white)
         search.fp_height = 50
+        self.searchField.embedded(in: search)
+        return search
+    }()
+
+    lazy var searchField: UITextField = {
         let textField = UITextField()
         let icon = FAKIonIcons.image(with: "ion-ios-search", size: 20)
-        textField.leftView = UIImageView(image: icon)
+        let image = UIImageView(image: icon)
+        image.contentMode = .center
+        image.fp_size = CGSize(width: 24, height: 24)
+        textField.leftView = image
         textField.leftViewMode = .always
         textField.clearButtonMode = .always
         textField.placeholder = "Tap to search..."
         textField.returnKeyType = .search
-        textField.embedded(in: search)
-        return search
+        textField.textColor = UIColor.black25Percent()
+        textField.addTarget(self, action: #selector(search(_:)), for: .editingDidEndOnExit)
+        textField.delegate = self
+        return textField
     }()
 
     lazy var tableView: UITableView = {
@@ -47,27 +60,9 @@ class TimezonesViewController: UIViewController, HalfModalPresentable {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        configureData()
+        viewModel.configure(ids: TimeZone.knownTimeZoneIdentifiers)
         configureNaviItems()
         configureSubviews()
-    }
-
-    func configureData() {
-        let items = TimeZoneItem.get(ids: TimeZone.knownTimeZoneIdentifiers)
-        let fav = TimeZoneItem.get(ids: Defaults[.favorites])
-        let predicate = { (item: TimeZoneItem) -> String in
-            if item.title == "UTC" || item.title == "GMT" {
-                return "N/A"
-            }
-            let area = item.area
-            var header = area.continent
-            if area.country.length > 0 {
-                header.append("/\(area.country)")
-            }
-            return header
-        }
-        self.set = Set<TimeZoneItem>(fav)
-        self.data = Dictionary.init(grouping: items, by: predicate).map { return ($0.key, $0.value) }
     }
 
     func configureNaviItems() {
@@ -81,32 +76,16 @@ class TimezonesViewController: UIViewController, HalfModalPresentable {
     func configureSubviews() {
         self.view.backgroundColor = .clear
         tableView.embedded(in: self.view)
-//        tableView.tableHeaderView = self.searchView
+        tableView.tableHeaderView = self.searchView
+        tableView.setContentOffset(CGPoint(x: 0, y: 50), animated: false)
     }
 
     @objc func maximize() {
         self.maximizeToFullScreen()
     }
 
-    func add(item: TimeZoneItem) -> Bool {
-        if self.set.contains(item) {
-            let banner = NotificationBanner(title: "You have already added \(item.area.city).", style: .warning)
-            banner.duration = 2
-            banner.show()
-            self.banner = banner
-            return false
-        } else {
-            var favs = Defaults[.favorites]
-            favs.append(item.timezone.identifier)
-            Defaults.set(.favorites, favs)
-            Defaults.synchronize()
-            set.insert(item)
-            let banner = NotificationBanner(title: "\(item.area.city) added successfully.", style: .success)
-            banner.duration = 1.5
-            banner.show()
-            self.banner = banner
-            return true
-        }
+    @objc func search(_ textField: UITextField) {
+        viewModel.search(keyword: textField.text?.trimmed ?? "")
     }
 
     @objc func close() {
@@ -115,22 +94,11 @@ class TimezonesViewController: UIViewController, HalfModalPresentable {
 }
 
 extension TimezonesViewController: UITableViewDelegate, UITableViewDataSource {
-
-    func timezone(with indexPath: IndexPath) -> TimeZoneItem? {
-        guard indexPath.section < self.data.count else {
-            return nil
-        }
-        guard indexPath.row < self.data[indexPath.section].items.count else {
-            return nil
-        }
-        return self.data[indexPath.section].items[indexPath.row]
-    }
-
     func numberOfSections(in tableView: UITableView) -> Int {
-        return self.data.count
+        return viewModel.data.count
     }
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return self.data[section].items.count
+        return viewModel.data[section].items.count
     }
 
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
@@ -139,11 +107,11 @@ extension TimezonesViewController: UITableViewDelegate, UITableViewDataSource {
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell: TimeZoneCell = tableView.dequeueReusableCell(for: indexPath)
-        guard let item = self.timezone(with: indexPath) else { return cell }
+        guard let item = viewModel.timezone(with: indexPath) else { return cell }
         cell.highlight()
         cell.textLabel?.text = item.area.city
         cell.detailTextLabel?.text = item.timezone.offset(string: item.abbr)
-        if set.contains(item) {
+        if viewModel.set.contains(item) {
             cell.infoLabel?.text = "\u{f443}"
         } else {
             cell.infoLabel?.text = "\u{f442}"
@@ -170,7 +138,7 @@ extension TimezonesViewController: UITableViewDelegate, UITableViewDataSource {
         let header = UIView()
         header.backgroundColor = UIColor.iceberg()
         let label = UILabel()
-        label.text = self.data[section].prefix
+        label.text = viewModel.data[section].prefix
         label.textColor = UIColor.black25Percent()
         label.sizeToFit()
         header.addSubview(label)
@@ -184,12 +152,41 @@ extension TimezonesViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         self.banner?.dismiss()
-        guard let item = self.timezone(with: indexPath) else { return }
-        if self.add(item: item) {
+        guard let item = viewModel.timezone(with: indexPath) else { return }
+        if viewModel.add(item: item) {
+            let banner = NotificationBanner(title: "\(item.area.city) added successfully.", style: .success)
+            banner.duration = 1.5
+            banner.show()
+            self.banner = banner
+
             let cell = tableView.cellForRow(at: indexPath) as? TimeZoneCell
             cell?.infoLabel?.text = "\u{f443}"
             cell?.infoLabel?.sizeToFit()
             cell?.setNeedsDisplay()
+        } else {
+            let banner = NotificationBanner(title: "You have already added \(item.area.city).", style: .warning)
+            banner.duration = 2
+            banner.show()
+            self.banner = banner
         }
+    }
+}
+
+extension TimezonesViewController: TimezonesViewModelOwner {
+    var listView: UITableView {
+        return self.tableView
+    }
+}
+
+extension TimezonesViewController: UITextFieldDelegate {
+    func textFieldShouldClear(_ textField: UITextField) -> Bool {
+        viewModel.search(keyword: "")
+        return true
+    }
+}
+
+extension TimezonesViewController: UIScrollViewDelegate {
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        self.searchField.resignFirstResponder()
     }
 }
