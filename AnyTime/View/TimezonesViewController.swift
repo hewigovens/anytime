@@ -40,7 +40,7 @@ class TimezonesViewController: UIViewController, HalfModalPresentable {
         textField.leftView = image
         textField.leftViewMode = .always
         textField.clearButtonMode = .always
-        textField.placeholder = "Tap to search..."
+        textField.placeholder = "Tap to search city..."
         textField.returnKeyType = .search
         textField.textColor = UIColor.black25Percent()
         textField.addTarget(self, action: #selector(search(_:)), for: .editingDidEndOnExit)
@@ -56,6 +56,20 @@ class TimezonesViewController: UIViewController, HalfModalPresentable {
         tableView.register(cellType: TimeZoneCell.self)
         tableView.tableFooterView = UIView()
         return tableView
+    }()
+
+    lazy var empty: UIView = {
+        let view = UIView()
+        let label = UILabel()
+        label.text = "Ah, try another city?"
+        label.sizeToFit()
+        label.textColor = UIColor.black25Percent()
+        label.embedded(in: view, make: { make in
+            make.centerX.equalToSuperview()
+            make.top.equalTo(view).offset(200)
+        })
+        view.isHidden = true
+        return view
     }()
 
     override func viewDidLoad() {
@@ -78,6 +92,8 @@ class TimezonesViewController: UIViewController, HalfModalPresentable {
         tableView.embedded(in: self.view)
         tableView.tableHeaderView = self.searchView
         tableView.setContentOffset(CGPoint(x: 0, y: 50), animated: false)
+
+        self.empty.embedded(in: self.view)
     }
 
     @objc func maximize() {
@@ -95,6 +111,8 @@ class TimezonesViewController: UIViewController, HalfModalPresentable {
 
 extension TimezonesViewController: UITableViewDelegate, UITableViewDataSource {
     func numberOfSections(in tableView: UITableView) -> Int {
+        //:)
+        self.empty.isHidden = viewModel.data.count > 0
         return viewModel.data.count
     }
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {

@@ -146,6 +146,7 @@ class DatePicker: UIView {
     lazy var overlay: UIView = {
         let overlay = UIView(backgroundColor: UIColor.black)
         overlay.alpha = 0.5
+        overlay.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(cancelButtonTapped)))
         return overlay
     }()
 

@@ -20,6 +20,7 @@ class HalfModalPresentationController : UIPresentationController {
         let view = UIView(frame: CGRect(x: 0, y: 0, width: containerView!.bounds.width, height: containerView!.bounds.height))
 
         view.backgroundColor = UIColor.clear
+        view.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(dimmingViewTapped)))
 
         // Blur Effect
 //        let blurEffect = UIBlurEffect(style: .extraLight)
@@ -39,7 +40,11 @@ class HalfModalPresentationController : UIPresentationController {
         
         return view
     }
-    
+
+    @objc func dimmingViewTapped() {
+        self.presentedViewController.dismiss(animated: true, completion: nil)
+    }
+
     func adjustToFullScreen() {
         if let presentedView = presentedView, let containerView = self.containerView {
             UIView.animate(withDuration: 0.8, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.5, options: .curveEaseInOut, animations: { () -> Void in
