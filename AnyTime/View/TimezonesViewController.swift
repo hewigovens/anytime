@@ -151,10 +151,6 @@ extension TimezonesViewController: UITableViewDelegate, UITableViewDataSource {
         return 30
     }
 
-    func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
-        return 50
-    }
-
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         let header = UIView()
         header.backgroundColor = UIColor.iceberg()

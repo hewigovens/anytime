@@ -64,5 +64,27 @@ extension UIView {
             self.frame = frame
         }
     }
+
+    var fp_cX: CGFloat {
+        get {
+            return self.center.x
+        }
+        set {
+            var center = self.center
+            center.x = newValue
+            self.center = center
+        }
+    }
+
+    var fp_cY: CGFloat {
+        get {
+            return self.center.y
+        }
+        set {
+            var center = self.center
+            center.y = newValue
+            self.center = center
+        }
+    }
 }
 //swiftlint:enable variable_name

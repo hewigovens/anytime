@@ -19,6 +19,8 @@ class GlanceViewController: UITableViewController {
     let feedback = UIImpactFeedbackGenerator(style: .light)
     var viewModel: GlanceViewModel!
     weak var picker: DatePicker?
+    var dragInitialIndexPath: IndexPath?
+    var dragCellSnapshot: UIView?
 
     //swiftlint:disable weak_delegate
     var halfModalTransitioningDelegate: HalfModalTransitioningDelegate?
@@ -186,6 +188,70 @@ extension GlanceViewController {
         self.present(nav, animated: true, completion: nil)
     }
 
+    @objc func longPressed(_ sender: UILongPressGestureRecognizer) {
+        let locationInView = sender.location(in: tableView)
+        guard let indexPath = tableView.indexPathForRow(at: locationInView) else { return }
+        if sender.state == .began {
+            dragInitialIndexPath = indexPath
+            guard let cell = tableView.cellForRow(at: indexPath) else { return }
+            dragCellSnapshot = snapshotOfCell(inputView: cell)
+            dragCellSnapshot?.center = cell.center
+            dragCellSnapshot?.alpha = 0.0
+            tableView.addSubview(dragCellSnapshot!)
+
+            UIView.animate(withDuration: 0.25, animations: {
+                self.dragCellSnapshot?.fp_cY = locationInView.y
+                self.dragCellSnapshot?.transform = (self.dragCellSnapshot?.transform.scaledBy(x: 1.05, y: 1.05))!
+                self.dragCellSnapshot?.alpha = 0.99
+                cell.alpha = 0.0
+            }, completion: { (finished) -> Void in
+                if finished { cell.isHidden = true }
+            })
+        } else if sender.state == .changed && dragInitialIndexPath != nil {
+            dragCellSnapshot?.fp_cY = locationInView.y
+
+            // to lock dragging to same section add: "&& indexPath?.section == dragInitialIndexPath?.section" to the if below
+            if indexPath != dragInitialIndexPath {
+                // update your data model
+                viewModel.move(at: dragInitialIndexPath!, to: indexPath)
+                tableView.moveRow(at: dragInitialIndexPath!, to: indexPath)
+                tableView.reloadRows(at: [dragInitialIndexPath!, indexPath], with: .automatic)
+                dragInitialIndexPath = indexPath
+            }
+        } else if sender.state == .ended && dragInitialIndexPath != nil {
+            let cell = tableView.cellForRow(at: dragInitialIndexPath!)
+            cell?.isHidden = false
+            cell?.alpha = 0.0
+            UIView.animate(withDuration: 0.25, animations: { () -> Void in
+                self.dragCellSnapshot?.center = (cell?.center)!
+                self.dragCellSnapshot?.transform = CGAffineTransform.identity
+                self.dragCellSnapshot?.alpha = 0.0
+                cell?.alpha = 1.0
+            }, completion: { (finished) -> Void in
+                if finished {
+                    self.dragInitialIndexPath = nil
+                    self.dragCellSnapshot?.removeFromSuperview()
+                    self.dragCellSnapshot = nil
+                }
+            })
+        }
+    }
+
+    func snapshotOfCell(inputView: UIView) -> UIView {
+        UIGraphicsBeginImageContextWithOptions(inputView.bounds.size, false, 0.0)
+        inputView.layer.render(in: UIGraphicsGetCurrentContext()!)
+        let image = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+
+        let cellSnapshot = UIImageView(image: image)
+        cellSnapshot.layer.masksToBounds = false
+        cellSnapshot.layer.cornerRadius = 0.0
+        cellSnapshot.layer.shadowOffset = CGSize(width: -5.0, height: 0.0)
+        cellSnapshot.layer.shadowRadius = 5.0
+        cellSnapshot.layer.shadowOpacity = 0.4
+        return cellSnapshot
+    }
+
     func showDatePicker(formatter: DateFormatter? = nil, timezone: TimeZone? = nil) {
         guard self.picker == nil else { return }
 
@@ -228,6 +294,10 @@ extension GlanceViewController {
         self.tableView.backgroundColor = UIColor.midnightBlue()
         self.tableView.tableFooterView = UIView()
         self.configureHeader()
+
+        let gesture = UILongPressGestureRecognizer(target: self, action: #selector(longPressed(_:)))
+        gesture.cancelsTouchesInView = true
+        self.tableView.addGestureRecognizer(gesture)
     }
 
     func configureHeader() {

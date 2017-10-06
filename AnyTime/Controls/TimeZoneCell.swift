@@ -19,7 +19,7 @@ struct Area {
 
 extension TimeZoneItem {
     var area: Area {
-        let array = self.title.split(separator: "/").map {$0.replacingOccurrences(of: "_", with: " ")}
+        let array: [String] = self.title.split(separator: "/").map {$0.replacingOccurrences(of: "_", with: " ")}
         if array.count > 2 {
             return Area(continent: String(array[0]), country: String(array[1]), city: String(array[2]))
         } else if array.count == 2 {
