@@ -18,12 +18,7 @@
 		BB1C598F1F7688F000808529 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = BB1C598D1F7688F000808529 /* LaunchScreen.storyboard */; };
 		BB1C599A1F7688F000808529 /* AnyTimeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1C59991F7688F000808529 /* AnyTimeTests.swift */; };
 		BB3A1DCF1F7A0CE400F793F8 /* DatePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB3A1DCE1F7A0CE400F793F8 /* DatePicker.swift */; };
-		BB5678C31F7F3D68004A7361 /* DonationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB5678C21F7F3D68004A7361 /* DonationViewController.swift */; };
 		BB5678C71F7F41CC004A7361 /* FormatEditorViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB5678C61F7F41CC004A7361 /* FormatEditorViewController.swift */; };
-		BB5678D01F7F493D004A7361 /* UIImageViewExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB5678CC1F7F493D004A7361 /* UIImageViewExtension.swift */; };
-		BB5678D11F7F493D004A7361 /* CIImageExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB5678CD1F7F493D004A7361 /* CIImageExtension.swift */; };
-		BB5678D21F7F493D004A7361 /* CIColorExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB5678CE1F7F493D004A7361 /* CIColorExtension.swift */; };
-		BB5678D31F7F493D004A7361 /* QRCode.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB5678CF1F7F493D004A7361 /* QRCode.swift */; };
 		BB5678D51F7F52F1004A7361 /* Feedbackable.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB5678D41F7F52F1004A7361 /* Feedbackable.swift */; };
 		BB5BBA191F774E1300C87688 /* Defaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB5BBA181F774E1300C87688 /* Defaults.swift */; };
 		BB5BBA1B1F7755B500C87688 /* UIView+Frame.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB5BBA1A1F7755B500C87688 /* UIView+Frame.swift */; };
@@ -76,12 +71,7 @@
 		BB1C59991F7688F000808529 /* AnyTimeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnyTimeTests.swift; sourceTree = "<group>"; };
 		BB1C599B1F7688F000808529 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		BB3A1DCE1F7A0CE400F793F8 /* DatePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatePicker.swift; sourceTree = "<group>"; };
-		BB5678C21F7F3D68004A7361 /* DonationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DonationViewController.swift; sourceTree = "<group>"; };
 		BB5678C61F7F41CC004A7361 /* FormatEditorViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormatEditorViewController.swift; sourceTree = "<group>"; };
-		BB5678CC1F7F493D004A7361 /* UIImageViewExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIImageViewExtension.swift; sourceTree = "<group>"; };
-		BB5678CD1F7F493D004A7361 /* CIImageExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CIImageExtension.swift; sourceTree = "<group>"; };
-		BB5678CE1F7F493D004A7361 /* CIColorExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CIColorExtension.swift; sourceTree = "<group>"; };
-		BB5678CF1F7F493D004A7361 /* QRCode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = QRCode.swift; sourceTree = "<group>"; };
 		BB5678D41F7F52F1004A7361 /* Feedbackable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Feedbackable.swift; sourceTree = "<group>"; };
 		BB5BBA181F774E1300C87688 /* Defaults.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Defaults.swift; sourceTree = "<group>"; };
 		BB5BBA1A1F7755B500C87688 /* UIView+Frame.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView+Frame.swift"; sourceTree = "<group>"; };
@@ -177,7 +167,6 @@
 		BB1C59831F7688F000808529 /* AnyTime */ = {
 			isa = PBXGroup;
 			children = (
-				BB5678CB1F7F493D004A7361 /* QRCode */,
 				BB647A5A1F7D3E1300C3C2D4 /* HalfModalPresentation */,
 				BB647A551F7B43FC00C3C2D4 /* AnyTime-Bridging-Header.h */,
 				BB1C59841F7688F000808529 /* AppDelegate.swift */,
@@ -201,17 +190,6 @@
 			);
 			path = AnyTimeTests;
 			sourceTree = "<group>";
-		};
-		BB5678CB1F7F493D004A7361 /* QRCode */ = {
-			isa = PBXGroup;
-			children = (
-				BB5678CC1F7F493D004A7361 /* UIImageViewExtension.swift */,
-				BB5678CD1F7F493D004A7361 /* CIImageExtension.swift */,
-				BB5678CE1F7F493D004A7361 /* CIColorExtension.swift */,
-				BB5678CF1F7F493D004A7361 /* QRCode.swift */,
-			);
-			path = QRCode;
-			sourceTree = SOURCE_ROOT;
 		};
 		BB647A5A1F7D3E1300C3C2D4 /* HalfModalPresentation */ = {
 			isa = PBXGroup;
@@ -247,7 +225,6 @@
 				BB1C59861F7688F000808529 /* GlanceViewController.swift */,
 				BBE5E6061F7883E200A9F715 /* TimezonesViewController.swift */,
 				BBE5E6081F7883EE00A9F715 /* SettingsViewController.swift */,
-				BB5678C21F7F3D68004A7361 /* DonationViewController.swift */,
 				BB5678C61F7F41CC004A7361 /* FormatEditorViewController.swift */,
 			);
 			path = View;
@@ -554,17 +531,14 @@
 				BBE5E6071F7883E200A9F715 /* TimezonesViewController.swift in Sources */,
 				BB95E0651F789E5500858FD9 /* TimeZone+Offset.swift in Sources */,
 				BB03DCD31F8265EE00318D16 /* TimezonesViewModel.swift in Sources */,
-				BB5678C31F7F3D68004A7361 /* DonationViewController.swift in Sources */,
 				BB95E0691F78B6D800858FD9 /* DispatchQueue+Utils.swift in Sources */,
 				BB5BBA1D1F778F4100C87688 /* TimeZoneCell.swift in Sources */,
 				BB5678C71F7F41CC004A7361 /* FormatEditorViewController.swift in Sources */,
 				BB647A691F7D45A300C3C2D4 /* FAK+Utils.swift in Sources */,
 				BB03DCD51F8269C800318D16 /* UITableViewCell+SettingItem.swift in Sources */,
 				BB647A541F7B2D3800C3C2D4 /* UIView+Utils.swift in Sources */,
-				BB5678D21F7F493D004A7361 /* CIColorExtension.swift in Sources */,
 				BB03DCD71F8269FF00318D16 /* SettingsModel.swift in Sources */,
 				BB1C59871F7688F000808529 /* GlanceViewController.swift in Sources */,
-				BB5678D01F7F493D004A7361 /* UIImageViewExtension.swift in Sources */,
 				BB95E0671F78A8E700858FD9 /* TimeZoneItem.swift in Sources */,
 				BB647A611F7D3E1300C3C2D4 /* HalfModalInteractiveTransition.swift in Sources */,
 				BBC1354D1F7F76A600247325 /* GlanceViewModel.swift in Sources */,
@@ -574,8 +548,6 @@
 				BB647A641F7D3E1300C3C2D4 /* HalfModalPresentationController.swift in Sources */,
 				BB647A621F7D3E1300C3C2D4 /* HalfModalTransitionAnimator.swift in Sources */,
 				BB1716D31F82197000E7460D /* String+Utils.swift in Sources */,
-				BB5678D31F7F493D004A7361 /* QRCode.swift in Sources */,
-				BB5678D11F7F493D004A7361 /* CIImageExtension.swift in Sources */,
 				BB3A1DCF1F7A0CE400F793F8 /* DatePicker.swift in Sources */,
 				BB647A631F7D3E1300C3C2D4 /* HalfModalTransitioningDelegate.swift in Sources */,
 			);

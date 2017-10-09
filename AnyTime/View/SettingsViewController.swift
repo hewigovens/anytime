@@ -63,13 +63,6 @@ class SettingsViewController: UITableViewController, HalfModalPresentable {
             })
         ]))
 
-        sections.append(SettingSection(title: "Donate", items: [
-            SettingItem(title: "Donate", value: "", icon: FAKIonIcons.image(with: "ion-social-bitcoin-outline"), action: { [weak self] in
-                let vc = DonationViewController()
-                self?.navigationController?.pushViewController(vc, animated: true)
-            })
-        ]))
-
         sections.append(SettingSection(title: "About", items: [
             SettingItem(title: "Rate Us", value: "", icon: FAKIonIcons.image(with: "ion-ios-heart-outline"), action: {
                 SKStoreReviewController.requestReview()
