@@ -135,7 +135,8 @@ extension SettingsViewController {
         let height = sections.reduce(0) { (height, section) -> Int in
             return height + 24 + section.items.count * 44
         }
-        let barManager = view?.window?.windowScene?.statusBarManager
+        let window = UIApplication.shared.windows.filter {$0.isKeyWindow}.first
+        let barManager = window?.windowScene?.statusBarManager
 
         var statusBarHeight = barManager?.statusBarFrame.height ?? 0
         let naviBarHeight = self.navigationController?.navigationBar.frame.height ?? 0
@@ -166,7 +167,7 @@ extension SettingsViewController {
         label.embedded(in: view) { make in
             make.leading.equalToSuperview().offset(50)
             make.trailing.equalToSuperview().offset(-50)
-            make.bottom.equalToSuperview().offset(50)
+            make.bottom.equalToSuperview().offset(30)
         }
         return view
     }

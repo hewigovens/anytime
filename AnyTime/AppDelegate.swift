@@ -23,8 +23,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         self.window?.makeKeyAndVisible()
 
         setupAppearance()
-        #if !targetEnvironment(macCatalyst)
-        Fabric.with([Answers.self, Crashlytics.self])
+        #if targetEnvironment(macCatalyst)
+            self.window?.windowScene?.titlebar?.titleVisibility = .hidden
+            self.window?.windowScene?.titlebar?.toolbar = nil
+        #else
+            Fabric.with([Answers.self, Crashlytics.self])
         #endif
         return true
     }
