@@ -160,7 +160,9 @@ extension GlanceViewController: EKEventEditViewDelegate {
             alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
             alert.popoverPresentationController?.sourceView = self.view
             alert.popoverPresentationController?.sourceRect = self.view.bounds
-            self.present(alert, animated: true, completion: nil)
+            DispatchQueue.main.async {
+                self.present(alert, animated: true, completion: nil)
+            }
         }
     }
 }
