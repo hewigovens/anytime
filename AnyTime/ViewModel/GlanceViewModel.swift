@@ -23,6 +23,7 @@ class GlanceViewModel: NSObject {
     let store = EKEventStore()
 
     weak var owner: GlanceViewModelOwner?
+    var observers = [DefaultsDisposable]()
 
     override init() {
         super.init()
@@ -40,15 +41,14 @@ class GlanceViewModel: NSObject {
         self.dateformat = Defaults.format
         self.timezones = TimeZoneItem.get(ids: favs)
 
-        for key in AnyTimeKey.all() {
-            UserDefaults.standard.addObserver(self, forKeyPath: key, options: [.new], context: nil)
-        }
+        observers.append(Defaults.observe(\.favorites, options: .new) { self.processFavorites(update: $0) })
+        observers.append(Defaults.observe(\.format, options: .new) { self.processFormat(update: $0) })
+        observers.append(Defaults.observe(\.preferCity, options: .new) { self.processPreferCity(update: $0) })
     }
 
     deinit {
-        for key in AnyTimeKey.all() {
-            UserDefaults.standard.removeObserver(self, forKeyPath: key)
-        }
+        observers.forEach {  $0.dispose() }
+        observers.removeAll()
     }
 
     func item(at indexPath: IndexPath) -> TimeZoneItem? {
@@ -58,9 +58,7 @@ class GlanceViewModel: NSObject {
         return nil
     }
 
-    //swiftlint:disable identifier_name
     func move(at indexPath: IndexPath, to: IndexPath) {
-    //swiftlint:enable identifier_name
         timezones.move(at: indexPath.row, to: to.row)
         Defaults.favorites = timezones.map { $0.timezone.identifier }
     }
@@ -71,37 +69,24 @@ class GlanceViewModel: NSObject {
         Defaults.favorites = self.favs
     }
 
-    //swiftlint:disable block_based_kvo
-    override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey: Any]?, context: UnsafeMutableRawPointer?) {
-
-        if let visiable = owner?.visiable, visiable == true {
-            return
-        }
-
-        guard let keyPath = keyPath, let change = change else {
-            return
-        }
-
-        if keyPath == AnyTimeKey.favorites.rawValue {
-            guard let new = change[NSKeyValueChangeKey.newKey] as? [String] else {
-                return
-            }
-            if self.favs != new {
-                self.favs = new
+    private func processFavorites(update: DefaultsObserver<[String]>.Update) {
+        if let new = update.newValue, new != self.favs {
+            self.favs = new
+            DispatchQueue.main.async {
                 self.timezones = TimeZoneItem.get(ids: Defaults.favorites)
-                owner?.listView.reloadData()
+                self.owner?.listView.reloadData()
             }
-        } else if keyPath == AnyTimeKey.format.rawValue {
-            guard let new = change[NSKeyValueChangeKey.newKey] as? String else {
-                return
-            }
-            if self.dateformat != new {
-                self.dateformat = new
-                owner?.listView.reloadData()
-            }
-        } else if keyPath == AnyTimeKey.preferCity.rawValue {
+        }
+    }
+
+    private func processFormat(update: DefaultsObserver<String>.Update) {
+        if let new = update.newValue, new != self.dateformat {
+            self.dateformat = new
             owner?.listView.reloadData()
         }
     }
-    //swiftlint:enable block_based_kvo
+
+    private func processPreferCity(update: DefaultsObserver<Int>.Update) {
+        owner?.listView.reloadData()
+    }
 }

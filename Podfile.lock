@@ -5,7 +5,6 @@ PODS:
   - Crashlytics (3.14.0):
     - Fabric (~> 1.10.2)
   - Fabric (1.10.2)
-  - FLEX (3.1.2)
   - FontAwesomeKit/Core (2.2.1)
   - FontAwesomeKit/IonIcons (2.2.1):
     - FontAwesomeKit/Core
@@ -26,7 +25,6 @@ DEPENDENCIES:
   - Colours
   - Crashlytics
   - Fabric
-  - FLEX
   - FontAwesomeKit/IonIcons
   - NotificationBannerSwift
   - Reusable
@@ -39,7 +37,6 @@ SPEC REPOS:
     - Colours
     - Crashlytics
     - Fabric
-    - FLEX
     - FontAwesomeKit
     - MarqueeLabel
     - NotificationBannerSwift
@@ -52,7 +49,6 @@ SPEC CHECKSUMS:
   Colours: f24220c38f13deac88612667e9b4a7fb96b871d4
   Crashlytics: 540b7e5f5da5a042647227a5e3ac51d85eed06df
   Fabric: 706c8b8098fff96c33c0db69cbf81f9c551d0d74
-  FLEX: e13e805fc3eec8732cc227d1f7508770d46e9587
   FontAwesomeKit: 3614979b3dbb0ec3f7fac1bd760b91f66c31db67
   MarqueeLabel: f762aa681ae201f66c1d511858b171f75d83013a
   NotificationBannerSwift: 713e20f21b6105f4a36a00e5d9fa414a930d3d8e
@@ -61,6 +57,6 @@ SPEC CHECKSUMS:
   SwiftLint: 55e96a4a4d537d4a3156859fc1c54bd24851a046
   SwiftyUserDefaults: 33fcb42bd1feb53a37d873feb62c82967db5f7f6
 
-PODFILE CHECKSUM: 386d3deef4515b5123f72b4d900b6ee4f367b56a
+PODFILE CHECKSUM: 872819f579478a81cc3ca2698067ef60a3170884
 
-COCOAPODS: 1.9.0
+COCOAPODS: 1.9.1

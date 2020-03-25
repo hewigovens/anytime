@@ -12,11 +12,11 @@ target 'AnyTime' do
   pod 'SwiftyUserDefaults'
   pod 'FontAwesomeKit/IonIcons'
   pod 'NotificationBannerSwift'
+#  pod 'FluentDarkModeKit'
 
   pod 'SwiftLint'
   pod 'Crashlytics'
   pod 'Fabric'
-  pod 'FLEX', :configuration => ['Debug']
 
   target 'AnyTimeTests' do
     inherit! :search_paths

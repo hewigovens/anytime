@@ -1,12 +1,15 @@
 disabled_rules:
   - line_length
 
+identifier_name:
+  min_length:
+    2
+  allowed_symbols: ["_"]
+
 excluded:
   - Carthage
   - Pods
   - fastlane
   - .build
-  - ./HalfModalPresentation
-  - ./QRCode
 
 force_cast: warning

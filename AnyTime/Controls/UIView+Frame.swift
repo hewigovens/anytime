@@ -8,7 +8,6 @@
 
 import UIKit
 
-//swiftlint:disable variable_name
 extension UIView {
     var fp_x: CGFloat {
         get {
@@ -87,4 +86,3 @@ extension UIView {
         }
     }
 }
-//swiftlint:enable variable_name

@@ -9,17 +9,10 @@
 import Foundation
 import SwiftyUserDefaults
 
-enum AnyTimeKey: String {
+enum AnyTimeKey: String, CaseIterable {
     case favorites
     case format
     case preferCity = "prefer_city"
-}
-
-extension AnyTimeKey {
-    static func all() -> [String] {
-        let all: [AnyTimeKey] = [.favorites, .format, .preferCity]
-        return all.map {$0.rawValue}
-    }
 }
 
 extension DefaultsKeys {

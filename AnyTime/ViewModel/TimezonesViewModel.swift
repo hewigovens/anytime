@@ -63,6 +63,7 @@ class TimezonesViewModel {
             var favs = Defaults.favorites
             favs.append(item.timezone.identifier)
             Defaults.favorites = favs
+            Defaults.defaults.synchronize()
             set.insert(item)
             return true
         }

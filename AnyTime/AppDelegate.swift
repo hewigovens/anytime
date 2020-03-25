@@ -21,6 +21,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         self.window = UIWindow(frame: UIScreen.main.bounds)
         self.window?.rootViewController = UINavigationController(rootViewController: GlanceViewController())
         self.window?.makeKeyAndVisible()
+        self.window?.overrideUserInterfaceStyle = .light
 
         setupAppearance()
         #if targetEnvironment(macCatalyst)
@@ -44,6 +45,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         UINavigationBar.appearance().isTranslucent = false
         UINavigationBar.appearance().shadowImage = UIImage()
         UINavigationBar.appearance().setBackgroundImage(UIImage(), for: .default)
-        UINavigationBar.appearance().titleTextAttributes = [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 17, weight: .light)]
+        UINavigationBar.appearance().titleTextAttributes = [
+            NSAttributedString.Key.font: UIFont.systemFont(ofSize: 17, weight: .light),
+        ]
     }
 }
