@@ -18,15 +18,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        self.window = UIWindow(frame: UIScreen.main.bounds)
-        self.window?.rootViewController = UINavigationController(rootViewController: GlanceViewController())
-        self.window?.makeKeyAndVisible()
-        self.window?.overrideUserInterfaceStyle = .light
+        window = UIWindow(frame: UIScreen.main.bounds)
+        window?.rootViewController = UINavigationController(rootViewController: GlanceViewController())
+        window?.makeKeyAndVisible()
+        window?.overrideUserInterfaceStyle = .light
 
         setupAppearance()
         #if targetEnvironment(macCatalyst)
-            self.window?.windowScene?.titlebar?.titleVisibility = .hidden
-            self.window?.windowScene?.titlebar?.toolbar = nil
+            window?.windowScene?.titlebar?.titleVisibility = .hidden
+            window?.windowScene?.titlebar?.toolbar = nil
         #else
             Fabric.with([Answers.self, Crashlytics.self])
         #endif
@@ -34,7 +34,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     func applicationWillEnterForeground(_ application: UIApplication) {
-        guard let nav = self.window?.rootViewController as? UINavigationController,
+        guard let nav = window?.rootViewController as? UINavigationController,
             let controller = nav.topViewController as? GlanceViewController else { return }
         controller.update(date: Date())
     }
@@ -46,7 +46,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         UINavigationBar.appearance().shadowImage = UIImage()
         UINavigationBar.appearance().setBackgroundImage(UIImage(), for: .default)
         UINavigationBar.appearance().titleTextAttributes = [
-            NSAttributedString.Key.font: UIFont.systemFont(ofSize: 17, weight: .light),
+            NSAttributedString.Key.font: UIFont.systemFont(ofSize: 17, weight: .light)
         ]
     }
 }

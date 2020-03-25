@@ -63,7 +63,7 @@ class GlanceViewModel: NSObject {
         Defaults.favorites = timezones.map { $0.timezone.identifier }
     }
 
-    func delete(at indexPath: IndexPath) {
+    func remove(at indexPath: IndexPath) {
         timezones.remove(at: indexPath.row)
         favs.remove(at: indexPath.row)
         Defaults.favorites = self.favs

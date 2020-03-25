@@ -26,17 +26,17 @@ class GlanceViewController: UITableViewController {
         super.viewDidLoad()
 
         self.viewModel = GlanceViewModel(owner: self)
-        self.configureNaviItem()
-        self.configureSubviews()
+        configureNaviItem()
+        configureSubviews()
     }
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return self.viewModel.timezones.count
+        return viewModel.timezones.count
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell: TimeZoneCell = tableView.dequeueReusableCell(for: indexPath)
-        guard let timezone = self.viewModel.item(at: indexPath) else { return cell }
+        guard let timezone = viewModel.item(at: indexPath) else { return cell }
         cell.formatter.setLocalizedDateFormatFromTemplate(viewModel.dateformat)
         cell.date = viewModel.selectedDate
         cell.timezone = timezone
@@ -52,28 +52,24 @@ class GlanceViewController: UITableViewController {
     }
 
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        self.feedback.impactOccurred()
+        feedback.impactOccurred()
         tableView.deselectRow(at: indexPath, animated: true)
         let topIndex = IndexPath(row: 0, section: 0)
         let secondIndex = IndexPath(row: 1, section: 0)
         if indexPath == topIndex {
             let cell = tableView.cellForRow(at: topIndex) as? TimeZoneCell
-            self.showDatePicker(formatter: cell?.formatter, timezone: cell?.timezone?.timezone)
+            showDatePicker(formatter: cell?.formatter, timezone: cell?.timezone?.timezone)
             return
         }
         tableView.beginUpdates()
         viewModel.move(at: indexPath, to: topIndex)
         tableView.moveRow(at: indexPath, to: topIndex)
         tableView.endUpdates()
+        tableView.reloadRows(at: [topIndex], with: .automatic)
+        tableView.reloadRows(at: [secondIndex], with: .top)
 
-        if indexPath.row > tableView.visibleCells.count - 1 {
-            tableView.reloadData()
-            tableView.setContentOffset(CGPoint(x: 0, y: -tableView.contentInset.top), animated: true)
-        } else {
-            DispatchQueue.main.delay(ms: 500) {
-                tableView.reloadRows(at: [topIndex, secondIndex], with: .automatic)
-                tableView.setContentOffset(CGPoint(x: 0, y: -tableView.contentInset.top), animated: true)
-            }
+        DispatchQueue.main.delay(ms: 500) {
+            tableView.scrollToRow(at: topIndex, at: .bottom, animated: true)
         }
     }
 
@@ -99,7 +95,7 @@ class GlanceViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         let deleteItem = UIContextualAction(style: .normal, title: "Remove ⏰") {  (_, _, _) in
             tableView.beginUpdates()
-            self.viewModel.delete(at: indexPath)
+            self.viewModel.remove(at: indexPath)
             tableView.deleteRows(at: [indexPath], with: .automatic)
             tableView.endUpdates()
         }
@@ -167,7 +163,34 @@ extension GlanceViewController: EKEventEditViewDelegate {
     }
 }
 
-extension GlanceViewController {
+extension GlanceViewController: UITableViewDropDelegate, UITableViewDragDelegate {
+    func tableView(_ tableView: UITableView, itemsForBeginning session: UIDragSession, at indexPath: IndexPath) -> [UIDragItem] {
+        guard viewModel.item(at: indexPath) != nil else { return [] }
+        let itemProvider = NSItemProvider()
+        return [UIDragItem(itemProvider: itemProvider)]
+    }
+
+    func tableView(_ tableView: UITableView, dropSessionDidUpdate session: UIDropSession, withDestinationIndexPath destinationIndexPath: IndexPath?) -> UITableViewDropProposal {
+        return UITableViewDropProposal(operation: .move, intent: .insertAtDestinationIndexPath)
+    }
+
+    func tableView(_ tableView: UITableView, performDropWith coordinator: UITableViewDropCoordinator) {
+        let to: IndexPath
+        if let indexPath = coordinator.destinationIndexPath {
+            to = indexPath
+        } else {
+            // Get last index path of table view.
+            let section = tableView.numberOfSections - 1
+            let row = tableView.numberOfRows(inSection: section)
+            to = IndexPath(row: row, section: section)
+        }
+        for item in coordinator.items {
+            guard let from = item.sourceIndexPath else { continue }
+            self.viewModel.move(at: from, to: to)
+            tableView.reloadData()
+        }
+    }
+
     @objc func addTimezone() {
         let timezonesVC = TimezonesViewController()
         let nav = UINavigationController(rootViewController: timezonesVC)
@@ -178,70 +201,6 @@ extension GlanceViewController {
         let settingsVC = SettingsViewController(style: .plain)
         let nav = UINavigationController(rootViewController: settingsVC)
         self.present(nav, animated: true, completion: nil)
-    }
-
-    @objc func longPressed(_ sender: UILongPressGestureRecognizer) {
-        let locationInView = sender.location(in: tableView)
-        guard let indexPath = tableView.indexPathForRow(at: locationInView) else { return }
-        if sender.state == .began {
-            dragInitialIndexPath = indexPath
-            guard let cell = tableView.cellForRow(at: indexPath) else { return }
-            dragCellSnapshot = snapshotOfCell(inputView: cell)
-            dragCellSnapshot?.center = cell.center
-            dragCellSnapshot?.alpha = 0.0
-            tableView.addSubview(dragCellSnapshot!)
-
-            UIView.animate(withDuration: 0.25, animations: {
-                self.dragCellSnapshot?.fp_cY = locationInView.y
-                self.dragCellSnapshot?.transform = (self.dragCellSnapshot?.transform.scaledBy(x: 1.05, y: 1.05))!
-                self.dragCellSnapshot?.alpha = 0.99
-                cell.alpha = 0.0
-            }, completion: { (finished) -> Void in
-                if finished { cell.isHidden = true }
-            })
-        } else if sender.state == .changed && dragInitialIndexPath != nil {
-            dragCellSnapshot?.fp_cY = locationInView.y
-
-            // to lock dragging to same section add: "&& indexPath?.section == dragInitialIndexPath?.section" to the if below
-            if indexPath != dragInitialIndexPath {
-                // update your data model
-                viewModel.move(at: dragInitialIndexPath!, to: indexPath)
-                tableView.moveRow(at: dragInitialIndexPath!, to: indexPath)
-                tableView.reloadRows(at: [dragInitialIndexPath!, indexPath], with: .automatic)
-                dragInitialIndexPath = indexPath
-            }
-        } else if sender.state == .ended && dragInitialIndexPath != nil {
-            let cell = tableView.cellForRow(at: dragInitialIndexPath!)
-            cell?.isHidden = false
-            cell?.alpha = 0.0
-            UIView.animate(withDuration: 0.25, animations: { () -> Void in
-                self.dragCellSnapshot?.center = (cell?.center)!
-                self.dragCellSnapshot?.transform = CGAffineTransform.identity
-                self.dragCellSnapshot?.alpha = 0.0
-                cell?.alpha = 1.0
-            }, completion: { (finished) -> Void in
-                if finished {
-                    self.dragInitialIndexPath = nil
-                    self.dragCellSnapshot?.removeFromSuperview()
-                    self.dragCellSnapshot = nil
-                }
-            })
-        }
-    }
-
-    func snapshotOfCell(inputView: UIView) -> UIView {
-        UIGraphicsBeginImageContextWithOptions(inputView.bounds.size, false, 0.0)
-        inputView.layer.render(in: UIGraphicsGetCurrentContext()!)
-        let image = UIGraphicsGetImageFromCurrentImageContext()
-        UIGraphicsEndImageContext()
-
-        let cellSnapshot = UIImageView(image: image)
-        cellSnapshot.layer.masksToBounds = false
-        cellSnapshot.layer.cornerRadius = 0.0
-        cellSnapshot.layer.shadowOffset = CGSize(width: -5.0, height: 0.0)
-        cellSnapshot.layer.shadowRadius = 5.0
-        cellSnapshot.layer.shadowOpacity = 0.4
-        return cellSnapshot
     }
 
     func showDatePicker(formatter: DateFormatter? = nil, timezone: TimeZone? = nil) {
@@ -285,21 +244,21 @@ extension GlanceViewController {
     }
 
     func configureSubviews() {
-        self.tableView.register(cellType: TimeZoneCell.self)
-        self.tableView.separatorStyle = .none
-        self.tableView.backgroundColor = UIColor.midnightBlue()
-        self.tableView.tableFooterView = UIView()
-        self.configureHeader()
+        tableView.register(cellType: TimeZoneCell.self)
+        tableView.separatorStyle = .none
+        tableView.backgroundColor = UIColor.midnightBlue()
+        tableView.tableFooterView = UIView()
+        tableView.dragInteractionEnabled = true
+        tableView.dragDelegate = self
+        tableView.dropDelegate = self
 
-        let gesture = UILongPressGestureRecognizer(target: self, action: #selector(longPressed(_:)))
-        gesture.cancelsTouchesInView = true
-        self.tableView.addGestureRecognizer(gesture)
+        configureHeader()
     }
 
     func configureHeader() {
         let height: CGFloat = 550
-        self.tableView.tableHeaderView = self.createHeader(height: height)
-        self.tableView.contentInset = UIEdgeInsets(top: -height, left: 0, bottom: 0, right: 0)
+        tableView.tableHeaderView = self.createHeader(height: height)
+        tableView.contentInset = UIEdgeInsets(top: -height, left: 0, bottom: 0, right: 0)
     }
 
     func createHeader(height: CGFloat) -> UIView {
