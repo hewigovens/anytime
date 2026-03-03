@@ -5,7 +5,10 @@ struct ReferenceCalculatorCard: View {
     @Bindable var store: WorldClockStore
     @State private var pasteFeedback: PasteFeedback?
     @State private var isResolvingPaste = false
+    #if os(iOS)
     @State private var showingDateEditor = false
+    @State private var didApplyScreenshotScenario = false
+    #endif
 
     var body: some View {
         VStack(alignment: .leading, spacing: 18) {
@@ -21,25 +24,7 @@ struct ReferenceCalculatorCard: View {
 
             if let presentation = store.referencePresentation {
                 VStack(alignment: .leading, spacing: 4) {
-                    #if os(macOS)
-                    Text(presentation.formattedTime)
-                        .font(.system(size: 34, weight: .bold, design: .rounded))
-                        .monospacedDigit()
-                        .foregroundStyle(.primary)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                    #else
-                    Button {
-                        showingDateEditor = true
-                    } label: {
-                        Text(presentation.formattedTime)
-                            .font(.system(size: 34, weight: .bold, design: .rounded))
-                            .monospacedDigit()
-                            .foregroundStyle(.primary)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                    }
-                    .buttonStyle(.plain)
-                    .accessibilityLabel("Edit reference time \(presentation.formattedTime)")
-                    #endif
+                    formattedTimeLabel(for: presentation.formattedTime)
 
                     referenceZoneMenu {
                         HStack(spacing: 6) {
@@ -84,23 +69,56 @@ struct ReferenceCalculatorCard: View {
                 .stroke(AppTheme.calculatorStroke, lineWidth: 1)
         }
         .shadow(color: AppTheme.shadow, radius: 12, y: 5)
+        #if os(iOS)
         .sheet(isPresented: $showingDateEditor) {
             dateEditorSheet
         }
+        .task {
+            guard didApplyScreenshotScenario == false else {
+                return
+            }
+
+            didApplyScreenshotScenario = true
+
+            if AppStoreScreenshotScenario.current == .referenceTime {
+                showingDateEditor = true
+            }
+        }
+        #endif
     }
 
+    @ViewBuilder
+    private func formattedTimeLabel(for time: String) -> some View {
+        #if os(iOS)
+        Button {
+            showingDateEditor = true
+        } label: {
+            formattedTimeText(for: time)
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel("Edit reference time \(time)")
+        #else
+        formattedTimeText(for: time)
+        #endif
+    }
+
+    private func formattedTimeText(for time: String) -> some View {
+        Text(time)
+            .font(.system(size: 34, weight: .bold, design: .rounded))
+            .monospacedDigit()
+            .foregroundStyle(.primary)
+            .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    #if os(iOS)
     @ViewBuilder
     private var dateEditorSheet: some View {
         NavigationStack {
             ReferenceDateEditorView(store: store)
         }
-        #if os(macOS)
-        .frame(minWidth: 440, minHeight: 430)
-        #endif
-        #if os(iOS)
         .presentationDetents([.medium])
-        #endif
     }
+    #endif
 
     @ViewBuilder
     private var referenceDateControl: some View {

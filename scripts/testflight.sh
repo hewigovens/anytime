@@ -4,6 +4,7 @@ set -euo pipefail
 
 script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 repo_root="$(cd -- "$script_dir/.." && pwd)"
+source "$script_dir/lib/common.sh"
 project_path="$repo_root/AnyTime.xcodeproj"
 configuration="Release"
 export_options_plist="$repo_root/Config/TestFlightExportOptions.plist"
@@ -23,82 +24,6 @@ exported_artifact_path=""
 bundle_id=""
 build_version=""
 build_number=""
-
-log() {
-  printf '%s\n' "$*"
-}
-
-fail() {
-  printf '%s\n' "$*" >&2
-  exit 1
-}
-
-load_env() {
-  if [[ -f "$env_file" ]]; then
-    # shellcheck disable=SC1090
-    source "$env_file"
-  fi
-}
-
-require_command() {
-  local command_name="$1"
-
-  if ! command -v "$command_name" >/dev/null 2>&1; then
-    fail "$command_name is not installed"
-  fi
-}
-
-require_value() {
-  local variable_name="$1"
-
-  if [[ -z "${!variable_name:-}" ]]; then
-    fail "$variable_name is required. Set it in .env or your shell."
-  fi
-}
-
-require_non_empty() {
-  local value="$1"
-  local variable_name="$2"
-
-  if [[ -z "$value" ]]; then
-    fail "$variable_name is required. Set it in .env or your shell."
-  fi
-}
-
-run_xcodebuild() {
-  if command -v xcbeautify >/dev/null 2>&1; then
-    xcodebuild "$@" | xcbeautify
-  else
-    xcodebuild "$@"
-  fi
-}
-
-is_truthy() {
-  case "$1" in
-    1|[Tt][Rr][Uu][Ee]|[Yy][Ee][Ss]|[Oo][Nn]) return 0 ;;
-    *) return 1 ;;
-  esac
-}
-
-has_auth_key_values() {
-  [[ -n "${APP_STORE_CONNECT_KEY_ID:-}${APP_STORE_CONNECT_ISSUER_ID:-}${APP_STORE_CONNECT_KEY_PATH:-}" ]]
-}
-
-expand_path() {
-  local raw_path="$1"
-
-  case "$raw_path" in
-    "~")
-      printf '%s\n' "$HOME"
-      ;;
-    "~/"*)
-      printf '%s/%s\n' "$HOME" "${raw_path#~/}"
-      ;;
-    *)
-      printf '%s\n' "$raw_path"
-      ;;
-  esac
-}
 
 bootstrap_asc_auth() {
   local validation_mode="$1"
@@ -143,29 +68,8 @@ bootstrap_asc_auth() {
   "${command_args[@]}"
 }
 
-build_auth_args() {
-  local key_path
-
-  XCODE_AUTH_ARGS=()
-
-  if ! has_auth_key_values; then
-    return 0
-  fi
-
-  require_value APP_STORE_CONNECT_KEY_ID
-  require_value APP_STORE_CONNECT_ISSUER_ID
-  require_value APP_STORE_CONNECT_KEY_PATH
-
-  key_path="$(expand_path "$APP_STORE_CONNECT_KEY_PATH")"
-  if [[ ! -f "$key_path" ]]; then
-    fail "APP_STORE_CONNECT_KEY_PATH does not exist: $key_path"
-  fi
-
-  XCODE_AUTH_ARGS=(
-    -authenticationKeyPath "$key_path"
-    -authenticationKeyID "$APP_STORE_CONNECT_KEY_ID"
-    -authenticationKeyIssuerID "$APP_STORE_CONNECT_ISSUER_ID"
-  )
+has_auth_key_values() {
+  [[ -n "${APP_STORE_CONNECT_KEY_ID:-}${APP_STORE_CONNECT_ISSUER_ID:-}${APP_STORE_CONNECT_KEY_PATH:-}" ]]
 }
 
 configure_target() {
@@ -228,12 +132,11 @@ archive_build() {
 
   require_command xcodegen
   require_command xcodebuild
-  build_auth_args
+  build_xcode_auth_args
 
   cd "$repo_root"
 
-  log "Generating Xcode project..."
-  xcodegen generate
+  generate_xcode_project "$repo_root"
 
   mkdir -p "$release_root"
   rm -rf "$archive_path" "$export_path" "$derived_data_path"
@@ -282,7 +185,7 @@ upload_ios_build() {
 
   if [[ -n "$selected_group" ]]; then
     upload_command=(
-      asc publish testflight
+      publish testflight
       --app "$selected_app_id"
       --ipa "$ipa_path"
       --platform "$asc_platform"
@@ -307,7 +210,7 @@ upload_ios_build() {
     fi
   else
     upload_command=(
-      asc builds upload
+      builds upload
       --app "$selected_app_id"
       --ipa "$ipa_path"
       --platform "$asc_platform"
@@ -326,7 +229,7 @@ upload_ios_build() {
   fi
 
   log "Uploading $(basename "$ipa_path")..."
-  "${upload_command[@]}"
+  run_asc "${upload_command[@]}"
 }
 
 upload_macos_build() {
@@ -345,7 +248,7 @@ upload_macos_build() {
 
   if [[ -n "$selected_group" ]]; then
     publish_command=(
-      asc publish testflight
+      publish testflight
       --app "$selected_app_id"
       --build-number "$build_number"
       --version "$build_version"
@@ -371,7 +274,7 @@ upload_macos_build() {
     fi
 
     log "Publishing macOS build $build_version ($build_number) to TestFlight..."
-    "${publish_command[@]}"
+    run_asc "${publish_command[@]}"
     return 0
   fi
 
@@ -438,7 +341,7 @@ wait_for_build_processing() {
   local -a wait_command
 
   wait_command=(
-    asc builds wait
+    builds wait
     --app "$selected_app_id"
     --build-number "$build_number"
     --platform "$asc_platform"
@@ -450,11 +353,11 @@ wait_for_build_processing() {
   fi
 
   log "Waiting for macOS build $build_version ($build_number) to finish processing..."
-  "${wait_command[@]}"
+  run_asc "${wait_command[@]}"
 }
 
 find_build_id() {
-  asc builds find \
+  run_asc builds find \
     --app "$selected_app_id" \
     --build-number "$build_number" \
     --platform "$asc_platform" \
@@ -467,7 +370,7 @@ upsert_test_notes() {
   local notes="$3"
   local output_format="$4"
 
-  if asc builds test-notes update \
+  if run_asc builds test-notes update \
     --build "$build_id" \
     --locale "$locale" \
     --whats-new "$notes" \
@@ -476,7 +379,7 @@ upsert_test_notes() {
     return 0
   fi
 
-  asc builds test-notes create \
+  run_asc builds test-notes create \
     --build "$build_id" \
     --locale "$locale" \
     --whats-new "$notes" \
@@ -487,7 +390,9 @@ usage() {
   printf '%s\n' "Usage: scripts/testflight.sh [auth|upload|upload-ios|upload-macos]" >&2
 }
 
-load_env
+load_env_file "$env_file"
+normalize_auth_env
+build_asc_args
 cd "$repo_root"
 
 case "${1:-upload}" in

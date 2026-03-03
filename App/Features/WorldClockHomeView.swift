@@ -6,6 +6,7 @@ struct WorldClockHomeView: View {
     @Binding var showingSettings: Bool
     @State private var showingPicker = false
     @State private var pullDownMonitor = PullDownMonitor()
+    @State private var didApplyScreenshotScenario = false
 
     var body: some View {
         GeometryReader { proxy in
@@ -70,6 +71,22 @@ struct WorldClockHomeView: View {
             settingsSheet
         }
         .animation(.snappy, value: store.favoriteTimeZoneIDs)
+        .task {
+            guard didApplyScreenshotScenario == false else {
+                return
+            }
+
+            didApplyScreenshotScenario = true
+
+            switch AppStoreScreenshotScenario.current {
+            case .search:
+                showingPicker = true
+            case .settings:
+                showingSettings = true
+            default:
+                break
+            }
+        }
     }
 
     @ViewBuilder

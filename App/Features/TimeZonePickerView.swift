@@ -9,6 +9,7 @@ struct TimeZonePickerView: View {
     @State private var remoteMatches: [RemoteCityMatch] = []
     @State private var isLookingUpCities = false
     @State private var didRequestInitialFocus = false
+    @State private var didApplyScreenshotScenario = false
     @FocusState private var isSearchFieldFocused: Bool
 
     private var localSections: [TimeZoneSection] {
@@ -45,6 +46,10 @@ struct TimeZonePickerView: View {
             }
         }
         .task {
+            guard AppStoreScreenshotScenario.current != .search else {
+                return
+            }
+
             guard didRequestInitialFocus == false else {
                 return
             }
@@ -57,6 +62,20 @@ struct TimeZonePickerView: View {
         }
         .task(id: trimmedQuery) {
             await loadRemoteMatches(for: trimmedQuery)
+        }
+        .task {
+            guard didApplyScreenshotScenario == false else {
+                return
+            }
+
+            didApplyScreenshotScenario = true
+
+            if AppStoreScreenshotScenario.current == .search,
+               let searchText = AppStoreScreenshotScenario.searchText,
+               searchText.isEmpty == false {
+                self.searchText = searchText
+                isSearchFieldFocused = false
+            }
         }
     }
 
@@ -102,11 +121,14 @@ struct TimeZonePickerView: View {
 
     private var resultsList: some View {
         List {
+            #if os(macOS)
             Color.clear
                 .frame(height: 1)
                 .listRowInsets(EdgeInsets())
                 .listRowSeparator(.hidden)
+                .listRowBackground(Color.clear)
                 .id(Self.resultsTopID)
+            #endif
 
             if hasSearchQuery, isLookingUpCities, remoteMatches.isEmpty {
                 Section {

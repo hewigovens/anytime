@@ -13,6 +13,7 @@ struct AnyTimeApp: App {
     @State private var store = WorldClockStore()
     @State private var locationTimeZoneMonitor = LocationTimeZoneMonitor()
     @State private var showingSettings = false
+    @State private var didApplyScreenshotScenario = false
 
     init() {
         #if canImport(UIKit)
@@ -41,6 +42,17 @@ struct AnyTimeApp: App {
             #endif
             .task(id: store.usesLocationTimeZone) {
                 locationTimeZoneMonitor.setTrackingEnabled(store.usesLocationTimeZone)
+            }
+            .task {
+                guard didApplyScreenshotScenario == false else {
+                    return
+                }
+
+                didApplyScreenshotScenario = true
+
+                if let referenceDate = AppStoreScreenshotScenario.referenceDate {
+                    store.referenceDate = referenceDate
+                }
             }
             .onChange(of: locationTimeZoneMonitor.currentTimeZoneID) { _, newValue in
                 guard let newValue else {

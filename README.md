@@ -76,6 +76,8 @@ just verify
 just testflight-auth
 just testflight
 just testflight-macos
+just app-store-screenshots
+just capture-app-store-screenshots-ios
 ```
 
 Notes:
@@ -87,6 +89,8 @@ Notes:
 - `just lint` and `just verify` require `swiftlint`
 - `just testflight` archives a Release iOS build, exports an IPA, and uploads it with `asc`
 - `just testflight-macos` archives a Release macOS build, exports a PKG, and uploads it with `asc`
+- `just app-store-screenshots IOS_LOC_ID MAC_LOC_ID` uploads local App Store screenshot directories with `asc`
+- `just capture-app-store-screenshots-ios IOS_LOC_ID` rebuilds the iOS simulator app, captures the standard App Store scenarios, and uploads them
 
 Build a specific simulator destination:
 
@@ -125,6 +129,31 @@ Notes:
 - The macOS upload path currently requires the App Store Connect API key variables in `.env`, because `altool` uses them directly for package upload.
 - If you omit the API key variables, the upload step can still use an existing `asc auth login` session, but `xcodebuild` signing must then be satisfied by your local Xcode account setup.
 - `.env` and `./.asc/` are ignored by git so API credentials stay local to your machine.
+
+## App Store screenshots
+
+The repo also includes `scripts/app_store_screenshots.sh`, structured the same way as the release scripts under `scripts/`.
+
+Upload existing local screenshots with:
+
+```bash
+just app-store-screenshots IOS_VERSION_LOCALIZATION_ID MAC_VERSION_LOCALIZATION_ID
+```
+
+Capture and upload the standard iOS App Store screenshot set with:
+
+```bash
+just capture-app-store-screenshots-ios IOS_VERSION_LOCALIZATION_ID
+```
+
+Notes:
+
+- The script sources shared helpers from `scripts/lib/common.sh`.
+- The iOS capture flow generates four screens for both iPhone and iPad: home, reference-time editor, search, and settings.
+- It uploads iPhone screenshots from `screenshots/ios/iphone67/`.
+- iPad screenshots are uploaded from `screenshots/ios/ipad129/`.
+- macOS screenshots are uploaded from `screenshots/macos/desktop/`.
+- You can also set `APP_STORE_SCREENSHOTS_IOS_VERSION_LOCALIZATION_ID` and `APP_STORE_SCREENSHOTS_MAC_VERSION_LOCALIZATION_ID` in `.env` and run the script without arguments.
 
 ## CI
 

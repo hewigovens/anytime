@@ -21,6 +21,8 @@
 
 ## Release Tooling
 
+- Shared shell helpers live in `scripts/lib/common.sh`.
 - TestFlight automation lives in `scripts/testflight.sh`.
+- App Store screenshot capture/upload lives in `scripts/app_store_screenshots.sh`.
 - App Store Connect credentials live in local `.env` and `.asc/`; do not commit either.
 - Use `just testflight` for iOS uploads and `just testflight-macos` for macOS uploads.

@@ -6,6 +6,7 @@ package_path := "Packages/AnyTimeCore"
 default_destination := "generic/platform=iOS Simulator"
 macos_destination := "generic/platform=macOS"
 testflight_script := "./scripts/testflight.sh"
+screenshot_script := "./scripts/app_store_screenshots.sh"
 
 default:
     @just --list
@@ -53,3 +54,9 @@ testflight:
 
 testflight-macos:
     {{testflight_script}} upload-macos
+
+app-store-screenshots ios_loc="" mac_loc="":
+    {{screenshot_script}} upload {{ios_loc}} {{mac_loc}}
+
+capture-app-store-screenshots-ios ios_loc="":
+    {{screenshot_script}} capture-upload-ios {{ios_loc}}
