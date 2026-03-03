@@ -1,5 +1,5 @@
-import SwiftUI
 import AnyTimeCore
+import SwiftUI
 
 #if canImport(UIKit)
 import UIKit
@@ -38,7 +38,7 @@ struct AnyTimeApp: App {
             .background(WindowBackgroundConfigurator())
             #elseif os(macOS)
             .background(MacWindowConfigurator())
-            .frame(minWidth: 460, minHeight: 780)
+            .frame(minWidth: 450, minHeight: 780)
             #endif
             .task(id: store.usesLocationTimeZone) {
                 locationTimeZoneMonitor.setTrackingEnabled(store.usesLocationTimeZone)
@@ -62,6 +62,9 @@ struct AnyTimeApp: App {
                 store.updateAutomaticTimeZone(id: newValue)
             }
         }
+        #if os(macOS)
+        .defaultSize(width: 450, height: 780)
+        #endif
         #if os(macOS)
         .commands {
             CommandGroup(replacing: .appSettings) {
