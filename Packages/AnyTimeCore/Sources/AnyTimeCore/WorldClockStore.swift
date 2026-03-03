@@ -40,6 +40,7 @@ public final class WorldClockStore {
                 }
 
                 let automaticTimeZoneID = configuration.automaticTimeZoneID ?? currentTimeZoneID
+                configuration.automaticTimeZoneWasFavorite = configuration.favoriteTimeZoneIDs.contains(automaticTimeZoneID)
                 configuration.automaticTimeZoneID = automaticTimeZoneID
                 configuration.favoriteTimeZoneIDs.removeAll { $0 == automaticTimeZoneID }
                 configuration.favoriteTimeZoneIDs.insert(automaticTimeZoneID, at: 0)
@@ -112,6 +113,10 @@ public final class WorldClockStore {
                 configuration.preferredCityNamesByTimeZoneID[id] = normalizedPreferredCityName
             }
 
+            if configuration.usesLocationTimeZone, configuration.automaticTimeZoneID == id {
+                configuration.automaticTimeZoneWasFavorite = true
+            }
+
             if let index = configuration.favoriteTimeZoneIDs.firstIndex(of: id) {
                 let timeZoneID = configuration.favoriteTimeZoneIDs.remove(at: index)
                 configuration.favoriteTimeZoneIDs.insert(timeZoneID, at: 0)
@@ -138,6 +143,10 @@ public final class WorldClockStore {
             guard configuration.favoriteTimeZoneIDs.contains(id) == false else {
                 return
             }
+
+            if configuration.usesLocationTimeZone, configuration.automaticTimeZoneID == id {
+                configuration.automaticTimeZoneWasFavorite = true
+            }
             configuration.favoriteTimeZoneIDs.append(id)
         }
     }
@@ -146,6 +155,10 @@ public final class WorldClockStore {
         mutateConfiguration { configuration in
             guard configuration.favoriteTimeZoneIDs.count > 1 else {
                 return
+            }
+
+            if configuration.usesLocationTimeZone, configuration.automaticTimeZoneID == id {
+                configuration.automaticTimeZoneWasFavorite = false
             }
             configuration.favoriteTimeZoneIDs.removeAll { $0 == id }
             configuration.preferredCityNamesByTimeZoneID[id] = nil
@@ -212,14 +225,24 @@ public final class WorldClockStore {
 
         mutateConfiguration { configuration in
             let previousAutomaticTimeZoneID = configuration.automaticTimeZoneID
+            guard previousAutomaticTimeZoneID != id else {
+                return
+            }
+
+            let previousAutomaticTimeZoneWasFavorite = configuration.automaticTimeZoneWasFavorite
+            let newAutomaticTimeZoneWasFavorite = configuration.favoriteTimeZoneIDs.contains(id)
             configuration.automaticTimeZoneID = id
+            configuration.automaticTimeZoneWasFavorite = newAutomaticTimeZoneWasFavorite
 
             guard configuration.usesLocationTimeZone else {
                 return
             }
 
             configuration.favoriteTimeZoneIDs.removeAll { favoriteID in
-                favoriteID == id || favoriteID == previousAutomaticTimeZoneID
+                favoriteID == id || (
+                    favoriteID == previousAutomaticTimeZoneID &&
+                    previousAutomaticTimeZoneWasFavorite == false
+                )
             }
             configuration.favoriteTimeZoneIDs.insert(id, at: 0)
         }
@@ -373,8 +396,10 @@ public final class WorldClockStore {
         if let automaticTimeZoneID = configuration.automaticTimeZoneID,
            TimeZone(identifier: automaticTimeZoneID) != nil {
             sanitized.automaticTimeZoneID = automaticTimeZoneID
+            sanitized.automaticTimeZoneWasFavorite = configuration.automaticTimeZoneWasFavorite
         } else {
             sanitized.automaticTimeZoneID = currentTimeZoneID
+            sanitized.automaticTimeZoneWasFavorite = false
         }
 
         if sanitized.usesLocationTimeZone, let automaticTimeZoneID = sanitized.automaticTimeZoneID {

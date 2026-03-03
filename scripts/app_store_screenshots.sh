@@ -16,7 +16,7 @@ output_root="$repo_root/screenshots"
 iphone_output_path="$output_root/ios/iphone67"
 ipad_output_path="$output_root/ios/ipad129"
 desktop_path="$output_root/macos/desktop"
-ios_runtime="${APP_STORE_SCREENSHOTS_IOS_RUNTIME:-com.apple.CoreSimulator.SimRuntime.iOS-26-2}"
+ios_runtime="${APP_STORE_SCREENSHOTS_IOS_RUNTIME:-}"
 iphone_device_type="${APP_STORE_SCREENSHOTS_IPHONE_DEVICE_TYPE:-com.apple.CoreSimulator.SimDeviceType.iPhone-14-Pro-Max}"
 ipad_device_type="${APP_STORE_SCREENSHOTS_IPAD_DEVICE_TYPE:-com.apple.CoreSimulator.SimDeviceType.iPad-Pro-12-9-inch-6th-generation-8GB}"
 iphone_simulator_name="${APP_STORE_SCREENSHOTS_IPHONE_NAME:-AnyTime App Store iPhone 6.7}"
@@ -35,7 +35,45 @@ configure_capture() {
   require_command xcodegen
   require_command xcrun
 
+  ios_runtime="$(resolve_ios_runtime)"
+
   mkdir -p "$iphone_output_path" "$ipad_output_path"
+}
+
+resolve_ios_runtime() {
+  if [[ -n "$ios_runtime" ]]; then
+    printf '%s\n' "$ios_runtime"
+    return 0
+  fi
+
+  xcrun simctl list runtimes --json | python3 -c '
+import json
+import sys
+
+payload = json.load(sys.stdin)
+ios_runtimes = []
+
+for runtime in payload.get("runtimes", []):
+    identifier = runtime.get("identifier", "")
+    if identifier.startswith("com.apple.CoreSimulator.SimRuntime.iOS-") is False:
+        continue
+    if runtime.get("isAvailable") is not True:
+        continue
+
+    version = runtime.get("version", "")
+    try:
+        version_key = tuple(int(part) for part in version.split("."))
+    except ValueError:
+        continue
+
+    ios_runtimes.append((version_key, identifier))
+
+if not ios_runtimes:
+    raise SystemExit("No available iOS simulator runtime found.")
+
+ios_runtimes.sort()
+print(ios_runtimes[-1][1])
+'
 }
 
 simulator_udid() {

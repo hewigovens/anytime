@@ -239,6 +239,26 @@ final class AnyTimeCoreTests: XCTestCase {
         XCTAssertEqual(store.favoriteTimeZoneIDs, ["Asia/Shanghai", "UTC", "Asia/Tokyo"])
     }
 
+    func testUpdatingAutomaticTimeZoneKeepsPreviousAutomaticZoneWhenItWasPinned() {
+        let store = WorldClockStore(
+            persistence: InMemoryPersistence(
+                configuration: WorldClockConfiguration(
+                    favoriteTimeZoneIDs: ["UTC", "America/Los_Angeles", "Asia/Tokyo"],
+                    automaticTimeZoneID: "America/Los_Angeles"
+                )
+            ),
+            now: fixedDate
+        )
+
+        store.usesLocationTimeZone = true
+        store.updateAutomaticTimeZone(id: "Asia/Shanghai")
+
+        XCTAssertEqual(
+            store.favoriteTimeZoneIDs,
+            ["Asia/Shanghai", "America/Los_Angeles", "UTC", "Asia/Tokyo"]
+        )
+    }
+
     func testStoredLocationTimeZoneConfigurationKeepsAutomaticZoneFirst() {
         let store = WorldClockStore(
             persistence: InMemoryPersistence(

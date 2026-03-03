@@ -7,6 +7,7 @@ public struct WorldClockConfiguration: Codable, Equatable, Sendable {
     public var dateStyle: ClockDateStyle
     public var usesLocationTimeZone: Bool
     public var automaticTimeZoneID: String?
+    public var automaticTimeZoneWasFavorite: Bool
 
     public init(
         favoriteTimeZoneIDs: [String],
@@ -14,7 +15,8 @@ public struct WorldClockConfiguration: Codable, Equatable, Sendable {
         labelStyle: ClockLabelStyle = .city,
         dateStyle: ClockDateStyle = .weekdayAndTime,
         usesLocationTimeZone: Bool = false,
-        automaticTimeZoneID: String? = nil
+        automaticTimeZoneID: String? = nil,
+        automaticTimeZoneWasFavorite: Bool = false
     ) {
         self.favoriteTimeZoneIDs = favoriteTimeZoneIDs
         self.preferredCityNamesByTimeZoneID = preferredCityNamesByTimeZoneID
@@ -22,6 +24,7 @@ public struct WorldClockConfiguration: Codable, Equatable, Sendable {
         self.dateStyle = dateStyle
         self.usesLocationTimeZone = usesLocationTimeZone
         self.automaticTimeZoneID = automaticTimeZoneID
+        self.automaticTimeZoneWasFavorite = automaticTimeZoneWasFavorite
     }
 
     enum CodingKeys: String, CodingKey {
@@ -31,6 +34,7 @@ public struct WorldClockConfiguration: Codable, Equatable, Sendable {
         case dateStyle
         case usesLocationTimeZone
         case automaticTimeZoneID
+        case automaticTimeZoneWasFavorite
     }
 
     public init(from decoder: any Decoder) throws {
@@ -41,6 +45,7 @@ public struct WorldClockConfiguration: Codable, Equatable, Sendable {
         dateStyle = try container.decodeIfPresent(ClockDateStyle.self, forKey: .dateStyle) ?? .weekdayAndTime
         usesLocationTimeZone = try container.decodeIfPresent(Bool.self, forKey: .usesLocationTimeZone) ?? false
         automaticTimeZoneID = try container.decodeIfPresent(String.self, forKey: .automaticTimeZoneID)
+        automaticTimeZoneWasFavorite = try container.decodeIfPresent(Bool.self, forKey: .automaticTimeZoneWasFavorite) ?? false
     }
 
     public func encode(to encoder: any Encoder) throws {
@@ -51,6 +56,7 @@ public struct WorldClockConfiguration: Codable, Equatable, Sendable {
         try container.encode(dateStyle, forKey: .dateStyle)
         try container.encode(usesLocationTimeZone, forKey: .usesLocationTimeZone)
         try container.encodeIfPresent(automaticTimeZoneID, forKey: .automaticTimeZoneID)
+        try container.encode(automaticTimeZoneWasFavorite, forKey: .automaticTimeZoneWasFavorite)
     }
 
     public static func `default`(currentTimeZoneID: String) -> WorldClockConfiguration {
@@ -69,7 +75,8 @@ public struct WorldClockConfiguration: Codable, Equatable, Sendable {
             labelStyle: .city,
             dateStyle: .weekdayAndTime,
             usesLocationTimeZone: false,
-            automaticTimeZoneID: currentTimeZoneID
+            automaticTimeZoneID: currentTimeZoneID,
+            automaticTimeZoneWasFavorite: false
         )
     }
 }

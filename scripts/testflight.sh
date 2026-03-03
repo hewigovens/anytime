@@ -25,6 +25,10 @@ bundle_id=""
 build_version=""
 build_number=""
 
+testflight_notes() {
+  printf '%s\n' "${TESTFLIGHT_TEST_NOTES:-${TESTFLIGHT_NOTES:-}}"
+}
+
 bootstrap_asc_auth() {
   local validation_mode="$1"
   local required="$2"
@@ -178,7 +182,10 @@ upload_ios_build() {
   local ipa_path="$1"
   local output_format="${TESTFLIGHT_OUTPUT:-table}"
   local locale="${TESTFLIGHT_LOCALE:-en-US}"
+  local notes
   local -a upload_command
+
+  notes="$(testflight_notes)"
 
   require_command asc
   require_non_empty "$selected_app_id" "ASC_APP_ID"
@@ -194,9 +201,9 @@ upload_ios_build() {
       --output "$output_format"
     )
 
-    if [[ -n "${TESTFLIGHT_TEST_NOTES:-}" ]]; then
+    if [[ -n "$notes" ]]; then
       upload_command+=(
-        --test-notes "$TESTFLIGHT_TEST_NOTES"
+        --test-notes "$notes"
         --locale "$locale"
       )
     fi
@@ -217,10 +224,10 @@ upload_ios_build() {
       --output "$output_format"
     )
 
-    if [[ -n "${TESTFLIGHT_TEST_NOTES:-}" ]]; then
+    if [[ -n "$notes" ]]; then
       upload_command+=(
         --wait
-        --test-notes "$TESTFLIGHT_TEST_NOTES"
+        --test-notes "$notes"
         --locale "$locale"
       )
     elif is_truthy "${TESTFLIGHT_WAIT:-0}"; then
@@ -236,7 +243,10 @@ upload_macos_build() {
   local pkg_path="$1"
   local output_format="${TESTFLIGHT_OUTPUT:-table}"
   local locale="${TESTFLIGHT_LOCALE:-en-US}"
+  local notes
   local -a publish_command
+
+  notes="$(testflight_notes)"
 
   require_command asc
   require_non_empty "$selected_app_id" "ASC_MAC_APP_ID or ASC_APP_ID"
@@ -258,9 +268,9 @@ upload_macos_build() {
       --output "$output_format"
     )
 
-    if [[ -n "${TESTFLIGHT_TEST_NOTES:-}" ]]; then
+    if [[ -n "$notes" ]]; then
       publish_command+=(
-        --test-notes "$TESTFLIGHT_TEST_NOTES"
+        --test-notes "$notes"
         --locale "$locale"
       )
     fi
@@ -278,12 +288,12 @@ upload_macos_build() {
     return 0
   fi
 
-  if [[ -n "${TESTFLIGHT_TEST_NOTES:-}" ]] || is_truthy "${TESTFLIGHT_WAIT:-0}"; then
+  if [[ -n "$notes" ]] || is_truthy "${TESTFLIGHT_WAIT:-0}"; then
     wait_for_build_processing "$output_format"
   fi
 
-  if [[ -n "${TESTFLIGHT_TEST_NOTES:-}" ]]; then
-    upsert_test_notes "$(find_build_id)" "$locale" "$TESTFLIGHT_TEST_NOTES" "$output_format"
+  if [[ -n "$notes" ]]; then
+    upsert_test_notes "$(find_build_id)" "$locale" "$notes" "$output_format"
   fi
 }
 
