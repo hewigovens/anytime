@@ -21,6 +21,11 @@ targets:
     deploymentTarget: "17.0"
     sources:
       - path: App
+        excludes:
+          - Info.plist
+          - Info-macOS.plist
+          - Resources/Assets.xcassets
+          - Resources/Base.lproj
       - path: App/Resources/Assets.xcassets
         buildPhase: resources
       - path: App/Resources/Base.lproj
@@ -37,6 +42,35 @@ targets:
         TARGETED_DEVICE_FAMILY: 1,2
         CODE_SIGN_STYLE: Automatic
         SUPPORTS_MACCATALYST: NO
+        DEVELOPMENT_TEAM: V28VJH6B6S
+    scheme:
+      gatherCoverageData: false
+
+  AnyTimeMac:
+    type: application
+    platform: macOS
+    deploymentTarget: "14.0"
+    sources:
+      - path: App
+        excludes:
+          - Info.plist
+          - Info-macOS.plist
+          - Resources/Assets.xcassets
+          - Resources/Base.lproj
+      - path: App/Resources/Assets.xcassets
+        buildPhase: resources
+    dependencies:
+      - package: AnyTimeCore
+        product: AnyTimeCore
+    settings:
+      base:
+        PRODUCT_NAME: AnyTime
+        PRODUCT_BUNDLE_IDENTIFIER: in.fourplex.AnyTime
+        INFOPLIST_FILE: App/Info-macOS.plist
+        GENERATE_INFOPLIST_FILE: NO
+        CODE_SIGN_ENTITLEMENTS: App/AnyTimeMac.entitlements
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIconMac
+        CODE_SIGN_STYLE: Automatic
         DEVELOPMENT_TEAM: V28VJH6B6S
     scheme:
       gatherCoverageData: false

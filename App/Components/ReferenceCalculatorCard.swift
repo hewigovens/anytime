@@ -1,6 +1,5 @@
 import AnyTimeCore
 import SwiftUI
-import UIKit
 
 struct ReferenceCalculatorCard: View {
     @Bindable var store: WorldClockStore
@@ -22,6 +21,13 @@ struct ReferenceCalculatorCard: View {
 
             if let presentation = store.referencePresentation {
                 VStack(alignment: .leading, spacing: 4) {
+                    #if os(macOS)
+                    Text(presentation.formattedTime)
+                        .font(.system(size: 34, weight: .bold, design: .rounded))
+                        .monospacedDigit()
+                        .foregroundStyle(.primary)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    #else
                     Button {
                         showingDateEditor = true
                     } label: {
@@ -33,6 +39,7 @@ struct ReferenceCalculatorCard: View {
                     }
                     .buttonStyle(.plain)
                     .accessibilityLabel("Edit reference time \(presentation.formattedTime)")
+                    #endif
 
                     referenceZoneMenu {
                         HStack(spacing: 6) {
@@ -46,15 +53,7 @@ struct ReferenceCalculatorCard: View {
                 }
             }
 
-            DatePicker(
-                "Reference time",
-                selection: $store.referenceDate,
-                displayedComponents: [.hourAndMinute, .date]
-            )
-            .datePickerStyle(.compact)
-            .labelsHidden()
-            .environment(\.timeZone, store.referenceTimeZone)
-            .tint(AppTheme.accent)
+            referenceDateControl
 
             VStack(spacing: 10) {
                 HStack(spacing: 10) {
@@ -86,11 +85,63 @@ struct ReferenceCalculatorCard: View {
         }
         .shadow(color: AppTheme.shadow, radius: 12, y: 5)
         .sheet(isPresented: $showingDateEditor) {
-            NavigationStack {
-                ReferenceDateEditorView(store: store)
-            }
-            .presentationDetents([.medium])
+            dateEditorSheet
         }
+    }
+
+    @ViewBuilder
+    private var dateEditorSheet: some View {
+        NavigationStack {
+            ReferenceDateEditorView(store: store)
+        }
+        #if os(macOS)
+        .frame(minWidth: 440, minHeight: 430)
+        #endif
+        #if os(iOS)
+        .presentationDetents([.medium])
+        #endif
+    }
+
+    @ViewBuilder
+    private var referenceDateControl: some View {
+        #if os(macOS)
+        HStack(spacing: 12) {
+            Image(systemName: "calendar.badge.clock")
+                .foregroundStyle(AppTheme.accent)
+
+            DatePicker(
+                "Reference time",
+                selection: $store.referenceDate,
+                displayedComponents: [.date, .hourAndMinute]
+            )
+            .datePickerStyle(.field)
+            .labelsHidden()
+            .environment(\.timeZone, store.referenceTimeZone)
+            .frame(maxWidth: .infinity, alignment: .leading)
+
+            Text(store.referenceTimeZone.identifier.replacingOccurrences(of: "_", with: " "))
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .lineLimit(1)
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 12)
+        .background(AppTheme.searchFieldSurface, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .overlay {
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .stroke(AppTheme.searchFieldStroke, lineWidth: 1)
+        }
+        #else
+        DatePicker(
+            "Reference time",
+            selection: $store.referenceDate,
+            displayedComponents: [.hourAndMinute, .date]
+        )
+        .datePickerStyle(.compact)
+        .labelsHidden()
+        .environment(\.timeZone, store.referenceTimeZone)
+        .tint(AppTheme.accent)
+        #endif
     }
 
     private func referenceZoneMenu<Label: View>(
@@ -113,7 +164,7 @@ struct ReferenceCalculatorCard: View {
 
     @MainActor
     private func pasteReferenceDate() async {
-        guard let clipboard = UIPasteboard.general.string else {
+        guard let clipboard = PlatformClipboard.string else {
             pasteFeedback = PasteFeedback(message: "Clipboard is empty.", isError: true)
             return
         }

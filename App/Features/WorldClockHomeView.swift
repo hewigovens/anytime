@@ -1,11 +1,10 @@
 import SwiftUI
 import AnyTimeCore
-import UIKit
 
 struct WorldClockHomeView: View {
     @Bindable var store: WorldClockStore
+    @Binding var showingSettings: Bool
     @State private var showingPicker = false
-    @State private var showingSettings = false
     @State private var pullDownMonitor = PullDownMonitor()
 
     var body: some View {
@@ -24,8 +23,22 @@ struct WorldClockHomeView: View {
             }
             .ignoresSafeArea(edges: .top)
         }
+        #if os(iOS)
         .toolbar(.hidden, for: .navigationBar)
+        #endif
         .toolbar {
+            #if os(macOS)
+            ToolbarItemGroup {
+                searchButton
+
+                Button {
+                    showingSettings = true
+                } label: {
+                    Label("Settings", systemImage: "gearshape")
+                }
+                .accessibilityLabel("Settings")
+            }
+            #else
             ToolbarItem(placement: .bottomBar) {
                 Button {
                     showingSettings = true
@@ -48,20 +61,41 @@ struct WorldClockHomeView: View {
                     searchButton
                 }
             }
+            #endif
         }
         .sheet(isPresented: $showingPicker) {
-            NavigationStack {
-                TimeZonePickerView(store: store)
-            }
-            .presentationDetents([.large])
+            pickerSheet
         }
         .sheet(isPresented: $showingSettings) {
-            NavigationStack {
-                SettingsView(store: store)
-            }
-            .presentationDetents([.medium, .large])
+            settingsSheet
         }
         .animation(.snappy, value: store.favoriteTimeZoneIDs)
+    }
+
+    @ViewBuilder
+    private var pickerSheet: some View {
+        NavigationStack {
+            TimeZonePickerView(store: store)
+        }
+        #if os(macOS)
+        .frame(minWidth: 680, minHeight: 520)
+        #endif
+        #if os(iOS)
+        .presentationDetents([.large])
+        #endif
+    }
+
+    @ViewBuilder
+    private var settingsSheet: some View {
+        NavigationStack {
+            SettingsView(store: store)
+        }
+        #if os(macOS)
+        .frame(minWidth: 560, minHeight: 460)
+        #endif
+        #if os(iOS)
+        .presentationDetents([.medium, .large])
+        #endif
     }
 
     private var header: some View {
@@ -92,17 +126,17 @@ struct WorldClockHomeView: View {
             }
 
             Section {
-                ForEach(store.presentations) { presentation in
+                ForEach(store.displayedPresentations) { presentation in
                     clockRow(for: presentation)
                 }
-                .onMove(perform: store.moveTimeZones)
+                .onMove(perform: store.moveDisplayedTimeZones)
             }
         }
         .listStyle(.plain)
         .scrollContentBackground(.hidden)
         .background(Color.clear)
 
-        if #available(iOS 18.0, *) {
+        if #available(iOS 18.0, macOS 15.0, *) {
             list.onScrollGeometryChange(for: CGFloat.self, of: { geometry in
                 geometry.contentOffset.y + geometry.contentInsets.top
             }, action: { _, newValue in
@@ -141,7 +175,7 @@ struct WorldClockHomeView: View {
             }
             .swipeActions(edge: .trailing, allowsFullSwipe: false) {
                 Button("Copy", systemImage: "doc.on.doc") {
-                    UIPasteboard.general.string = presentation.copyText
+                    PlatformClipboard.string = presentation.copyText
                 }
                 .tint(AppTheme.accent)
 
@@ -154,6 +188,31 @@ struct WorldClockHomeView: View {
                     .tint(.red)
                 }
             }
+            #if os(macOS)
+            .contextMenu {
+                Button("Copy", systemImage: "doc.on.doc") {
+                    PlatformClipboard.string = presentation.copyText
+                }
+
+                if presentation.isReference == false {
+                    Button("Reference", systemImage: "arrow.up.to.line") {
+                        withAnimation(.snappy) {
+                            store.setReferenceTimeZone(id: presentation.timeZoneID)
+                        }
+                    }
+                }
+
+                if store.hasMultipleFavorites {
+                    Divider()
+
+                    Button("Remove", systemImage: "trash", role: .destructive) {
+                        withAnimation(.snappy) {
+                            store.removeTimeZone(id: presentation.timeZoneID)
+                        }
+                    }
+                }
+            }
+            #endif
             .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
             .listRowBackground(Color.clear)
             .listRowSeparator(.hidden)

@@ -4,6 +4,8 @@ project := "AnyTime.xcodeproj"
 scheme := "AnyTime"
 package_path := "Packages/AnyTimeCore"
 default_destination := "generic/platform=iOS Simulator"
+macos_destination := "generic/platform=macOS"
+testflight_script := "./scripts/testflight.sh"
 
 default:
     @just --list
@@ -27,7 +29,12 @@ test:
     swift test --package-path {{package_path}}
 
 build destination=default_destination:
-    xcodebuild -scheme {{scheme}} -project {{project}} -destination '{{destination}}' build
+    set -o pipefail
+    xcodebuild -scheme {{scheme}} -project {{project}} -destination '{{destination}}' build | { command -v xcbeautify >/dev/null && xcbeautify || cat; }
+
+build-macos destination=macos_destination:
+    set -o pipefail
+    xcodebuild -scheme AnyTimeMac -project {{project}} -destination '{{destination}}' build | { command -v xcbeautify >/dev/null && xcbeautify || cat; }
 
 verify destination=default_destination:
     command -v xcodegen >/dev/null || { echo "xcodegen is not installed"; exit 1; }
@@ -35,4 +42,14 @@ verify destination=default_destination:
     xcodegen generate
     swiftlint --config .swiftlint.yml
     swift test --package-path {{package_path}}
-    xcodebuild -scheme {{scheme}} -project {{project}} -destination '{{destination}}' build
+    set -o pipefail
+    xcodebuild -scheme {{scheme}} -project {{project}} -destination '{{destination}}' build | { command -v xcbeautify >/dev/null && xcbeautify || cat; }
+
+testflight-auth:
+    {{testflight_script}} auth
+
+testflight:
+    {{testflight_script}} upload
+
+testflight-macos:
+    {{testflight_script}} upload-macos

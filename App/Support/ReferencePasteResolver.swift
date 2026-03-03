@@ -293,7 +293,7 @@ enum ReferencePasteResolver {
 
     private static func foundationModelHints(for text: String) async -> FoundationModelPasteHints? {
         #if canImport(FoundationModels)
-        if #available(iOS 26.0, *) {
+        if #available(iOS 26.0, macOS 26.0, *) {
             return await FoundationModelPasteInterpreter.interpret(text)
         }
         #endif

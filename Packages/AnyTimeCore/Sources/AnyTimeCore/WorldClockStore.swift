@@ -30,6 +30,23 @@ public final class WorldClockStore {
         }
     }
 
+    public var usesLocationTimeZone: Bool {
+        get { configuration.usesLocationTimeZone }
+        set {
+            mutateConfiguration { configuration in
+                configuration.usesLocationTimeZone = newValue
+                guard newValue else {
+                    return
+                }
+
+                let automaticTimeZoneID = configuration.automaticTimeZoneID ?? currentTimeZoneID
+                configuration.automaticTimeZoneID = automaticTimeZoneID
+                configuration.favoriteTimeZoneIDs.removeAll { $0 == automaticTimeZoneID }
+                configuration.favoriteTimeZoneIDs.insert(automaticTimeZoneID, at: 0)
+            }
+        }
+    }
+
     public var favoriteTimeZoneIDs: [String] {
         configuration.favoriteTimeZoneIDs
     }
@@ -56,6 +73,12 @@ public final class WorldClockStore {
 
     public var referencePresentation: ClockPresentation? {
         presentations.first
+    }
+
+    public var displayedPresentations: [ClockPresentation] {
+        presentations.filter { presentation in
+            presentation.isReference || presentation.isSameTimeAsReference == false
+        }
     }
 
     private let persistence: any WorldClockPersisting
@@ -135,6 +158,29 @@ public final class WorldClockStore {
         }
     }
 
+    public func moveDisplayedTimeZones(fromOffsets: IndexSet, toOffset: Int) {
+        let displayedIDs = displayedPresentations.map(\.timeZoneID)
+        var reorderedDisplayedIDs = displayedIDs
+        reorderedDisplayedIDs.move(fromOffsets: fromOffsets, toOffset: toOffset)
+
+        mutateConfiguration { configuration in
+            let displayedIDSet = Set(displayedIDs)
+            let hiddenIDs = configuration.favoriteTimeZoneIDs.filter { identifier in
+                displayedIDSet.contains(identifier) == false
+            }
+            let hiddenIDSet = Set(hiddenIDs)
+            var remainingDisplayedIDs = reorderedDisplayedIDs[...]
+
+            configuration.favoriteTimeZoneIDs = configuration.favoriteTimeZoneIDs.map { identifier in
+                if hiddenIDSet.contains(identifier) {
+                    return identifier
+                }
+
+                return remainingDisplayedIDs.removeFirst()
+            }
+        }
+    }
+
     public func shiftReference(hours: Int) {
         guard hours != 0 else {
             return
@@ -157,6 +203,26 @@ public final class WorldClockStore {
         configuration = .default(currentTimeZoneID: currentTimeZoneID)
         refreshPresentations()
         persistence.saveConfiguration(configuration)
+    }
+
+    public func updateAutomaticTimeZone(id: String) {
+        guard TimeZone(identifier: id) != nil else {
+            return
+        }
+
+        mutateConfiguration { configuration in
+            let previousAutomaticTimeZoneID = configuration.automaticTimeZoneID
+            configuration.automaticTimeZoneID = id
+
+            guard configuration.usesLocationTimeZone else {
+                return
+            }
+
+            configuration.favoriteTimeZoneIDs.removeAll { favoriteID in
+                favoriteID == id || favoriteID == previousAutomaticTimeZoneID
+            }
+            configuration.favoriteTimeZoneIDs.insert(id, at: 0)
+        }
     }
 
     private func refreshPresentations() {
@@ -190,6 +256,7 @@ public final class WorldClockStore {
         let abbreviation = descriptor.abbreviation(at: referenceDate)
         let cityName = preferredCityName(for: identifier, descriptor: descriptor)
         let targetOffsetSeconds = timeZone.secondsFromGMT(for: referenceDate)
+        let isSameTimeAsReference = identifier != referenceTimeZoneID && targetOffsetSeconds == referenceOffsetSeconds
         let utcOffsetText = ClockMath.utcOffsetText(seconds: targetOffsetSeconds)
         let comparisonText = identifier == referenceTimeZoneID
             ? "Reference zone"
@@ -237,7 +304,8 @@ public final class WorldClockStore {
             comparisonText: comparisonText,
             dayText: dayText,
             copyText: copyText,
-            isReference: identifier == referenceTimeZoneID
+            isReference: identifier == referenceTimeZoneID,
+            isSameTimeAsReference: isSameTimeAsReference
         )
     }
 
@@ -301,6 +369,17 @@ public final class WorldClockStore {
             }
 
             result[entry.key] = trimmedName
+        }
+        if let automaticTimeZoneID = configuration.automaticTimeZoneID,
+           TimeZone(identifier: automaticTimeZoneID) != nil {
+            sanitized.automaticTimeZoneID = automaticTimeZoneID
+        } else {
+            sanitized.automaticTimeZoneID = currentTimeZoneID
+        }
+
+        if sanitized.usesLocationTimeZone, let automaticTimeZoneID = sanitized.automaticTimeZoneID {
+            sanitized.favoriteTimeZoneIDs.removeAll { $0 == automaticTimeZoneID }
+            sanitized.favoriteTimeZoneIDs.insert(automaticTimeZoneID, at: 0)
         }
 
         if sanitized.favoriteTimeZoneIDs.isEmpty {

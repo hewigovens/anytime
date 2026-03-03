@@ -28,62 +28,15 @@ struct TimeZonePickerView: View {
     }
 
     var body: some View {
-        VStack(spacing: 12) {
-            searchField
-                .padding(.horizontal, 16)
-                .padding(.top, 8)
-
-            List {
-                if hasSearchQuery, isLookingUpCities, remoteMatches.isEmpty {
-                    Section {
-                        HStack(spacing: 10) {
-                            ProgressView()
-                                .controlSize(.small)
-                            Text("Searching cities…")
-                                .font(.footnote.weight(.medium))
-                                .foregroundStyle(.secondary)
-                        }
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.vertical, 4)
-                    }
-                }
-
-                if hasSearchQuery, remoteMatches.isEmpty == false {
-                    Section("Suggested Cities") {
-                        ForEach(remoteMatches) { match in
-                            resultRow(
-                                title: match.title,
-                                subtitle: match.subtitle,
-                                identifier: match.timeZoneID,
-                                preferredCityName: match.title
-                            )
-                        }
-                    }
-                }
-
-                ForEach(localSections) { section in
-                    Section(section.title) {
-                        ForEach(section.items) { descriptor in
-                            resultRow(
-                                title: descriptor.city,
-                                subtitle: descriptor.locationLine,
-                                identifier: descriptor.identifier
-                            )
-                        }
-                    }
-                }
-            }
-            .scrollContentBackground(.hidden)
-            .background(AppTheme.background.opacity(0.2))
-            .overlay {
-                if localSections.isEmpty, remoteMatches.isEmpty, hasSearchQuery, isLookingUpCities == false {
-                    ContentUnavailableView.search(text: searchText)
-                }
-            }
+        Group {
+            #if os(macOS)
+            macOSBody
+            #else
+            iOSBody
+            #endif
         }
-        .background(AppTheme.background.opacity(0.2))
         .navigationTitle("Add Clock")
-        .navigationBarTitleDisplayMode(.inline)
+        .inlineNavigationTitleDisplayMode()
         .toolbar {
             ToolbarItem(placement: .cancellationAction) {
                 Button("Close") {
@@ -104,6 +57,103 @@ struct TimeZonePickerView: View {
         }
         .task(id: trimmedQuery) {
             await loadRemoteMatches(for: trimmedQuery)
+        }
+    }
+
+    private var iOSBody: some View {
+        VStack(spacing: 12) {
+            searchField
+                .padding(.horizontal, 16)
+                .padding(.top, 8)
+
+            resultsList
+        }
+        .background(AppTheme.background.opacity(0.2))
+    }
+
+    private var macOSBody: some View {
+        ScrollViewReader { proxy in
+            VStack(spacing: 0) {
+                searchField
+                    .padding(20)
+
+                Divider()
+
+                resultsList
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .onAppear {
+                        proxy.scrollTo(Self.resultsTopID, anchor: .top)
+                    }
+                    .onChange(of: trimmedQuery) { _, _ in
+                        withAnimation(.snappy) {
+                            proxy.scrollTo(Self.resultsTopID, anchor: .top)
+                        }
+                    }
+                    .onChange(of: remoteMatches) { _, _ in
+                        withAnimation(.snappy) {
+                            proxy.scrollTo(Self.resultsTopID, anchor: .top)
+                        }
+                    }
+            }
+            .background(AppTheme.background.opacity(0.28))
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
+    }
+
+    private var resultsList: some View {
+        List {
+            Color.clear
+                .frame(height: 1)
+                .listRowInsets(EdgeInsets())
+                .listRowSeparator(.hidden)
+                .id(Self.resultsTopID)
+
+            if hasSearchQuery, isLookingUpCities, remoteMatches.isEmpty {
+                Section {
+                    HStack(spacing: 10) {
+                        ProgressView()
+                            .controlSize(.small)
+                        Text("Searching cities…")
+                            .font(.footnote.weight(.medium))
+                            .foregroundStyle(.secondary)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.vertical, 4)
+                }
+            }
+
+            if hasSearchQuery, remoteMatches.isEmpty == false {
+                Section("Suggested Cities") {
+                    ForEach(remoteMatches) { match in
+                        resultRow(
+                            title: match.title,
+                            subtitle: match.subtitle,
+                            identifier: match.timeZoneID,
+                            preferredCityName: match.title
+                        )
+                    }
+                }
+            }
+
+            ForEach(localSections) { section in
+                Section(section.title) {
+                    ForEach(section.items) { descriptor in
+                        resultRow(
+                            title: descriptor.city,
+                            subtitle: descriptor.locationLine,
+                            identifier: descriptor.identifier
+                        )
+                    }
+                }
+            }
+        }
+        .listStyle(.plain)
+        .scrollContentBackground(.hidden)
+        .background(AppTheme.background.opacity(0.2))
+        .overlay {
+            if localSections.isEmpty, remoteMatches.isEmpty, hasSearchQuery, isLookingUpCities == false {
+                ContentUnavailableView.search(text: searchText)
+            }
         }
     }
 
@@ -134,14 +184,20 @@ struct TimeZonePickerView: View {
 
     private var searchField: some View {
         HStack(spacing: 10) {
+            #if os(iOS)
             Image(systemName: "magnifyingglass")
                 .foregroundStyle(.secondary)
+            #endif
 
             TextField("Search any city, region, abbreviation, or UTC", text: $searchText)
+                #if os(iOS)
                 .textInputAutocapitalization(.words)
+                .submitLabel(.search)
+                #else
+                .textFieldStyle(.plain)
+                #endif
                 .autocorrectionDisabled()
                 .focused($isSearchFieldFocused)
-                .submitLabel(.search)
                 .foregroundStyle(.primary)
 
             if searchText.isEmpty == false {
@@ -249,6 +305,10 @@ struct TimeZonePickerView: View {
             .background(background.opacity(colorScheme == .dark ? 1 : 0.92), in: Capsule())
             .foregroundStyle(foreground)
     }
+}
+
+private extension TimeZonePickerView {
+    static let resultsTopID = "timezone-results-top"
 }
 
 private extension TimeZoneDescriptor {

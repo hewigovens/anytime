@@ -21,9 +21,11 @@ It keeps the original "timezone calculator" idea, but the codebase is now built 
 - macOS with command line tools installed
 - `xcodegen` to generate the local Xcode project
 - `just` if you want the shortcut commands
+- `xcbeautify` for readable `xcodebuild` output in local commands and upload scripts
 - `swiftlint` only if you plan to run `just lint` or `just verify`
+- `asc` only if you plan to run the TestFlight upload flow
 
-The app target deploys to iOS 17.0 and newer.
+The app targets deploy to iOS 17.0+ and macOS 14.0+.
 
 ## Project layout
 
@@ -67,22 +69,62 @@ just generate
 just open
 just test
 just build
+just build-macos
 just lint
 just lint-fix
 just verify
+just testflight-auth
+just testflight
+just testflight-macos
 ```
 
 Notes:
 
 - `just build` defaults to `generic/platform=iOS Simulator`
+- `just build-macos` builds the native macOS app target
+- `just build`, `just build-macos`, `just verify`, and the TestFlight archive/export steps pipe `xcodebuild` through `xcbeautify` when available
 - `just verify` runs project generation, SwiftLint, package tests, and an app build
 - `just lint` and `just verify` require `swiftlint`
+- `just testflight` archives a Release iOS build, exports an IPA, and uploads it with `asc`
+- `just testflight-macos` archives a Release macOS build, exports a PKG, and uploads it with `asc`
 
 Build a specific simulator destination:
 
 ```bash
 just build "platform=iOS Simulator,name=iPhone 16"
 ```
+
+## TestFlight uploads
+
+The repo includes `just testflight` and `just testflight-macos` workflows built around [App-Store-Connect-CLI](https://github.com/rudrankriyam/App-Store-Connect-CLI) for App Store Connect / TestFlight automation.
+
+One-time setup:
+
+1. Install `asc` if it is not already available.
+2. Install `xcbeautify` if it is not already available.
+3. Copy `.env.example` to `.env`.
+4. Fill in `ASC_APP_ID`, `APP_STORE_CONNECT_KEY_ID`, `APP_STORE_CONNECT_ISSUER_ID`, and `APP_STORE_CONNECT_KEY_PATH`.
+   If macOS lives under a separate App Store Connect record, also set `ASC_MAC_APP_ID`.
+5. Run `just testflight-auth` to write a repo-local `./.asc/config.json`.
+
+Then upload with:
+
+```bash
+just testflight
+just testflight-macos
+```
+
+Notes:
+
+- `just testflight` regenerates `AnyTime.xcodeproj`, archives the `AnyTime` scheme for `generic/platform=iOS`, exports an IPA to `build/testflight/ios/export/`, and uploads it with `asc`.
+- `just testflight-macos` regenerates `AnyTime.xcodeproj`, archives the `AnyTimeMac` scheme for `generic/platform=macOS`, exports a PKG to `build/testflight/macos/export/`, uploads the PKG with Apple `altool`, and then uses `asc` for TestFlight build lookup / distribution.
+- `ASC_MAC_APP_ID` is optional. If you omit it, the macOS flow falls back to `ASC_APP_ID`.
+- `TESTFLIGHT_MAC_GROUP` is optional. If you omit it, the macOS flow falls back to `TESTFLIGHT_GROUP`.
+- If an iOS group is configured, the command switches to `asc publish testflight`, waits for processing, and adds the build to that beta group.
+- If a macOS group is configured, the command uploads the PKG first, then publishes the processed `MAC_OS` build to that beta group.
+- The macOS upload path currently requires the App Store Connect API key variables in `.env`, because `altool` uses them directly for package upload.
+- If you omit the API key variables, the upload step can still use an existing `asc auth login` session, but `xcodebuild` signing must then be satisfied by your local Xcode account setup.
+- `.env` and `./.asc/` are ignored by git so API credentials stay local to your machine.
 
 ## CI
 

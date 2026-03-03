@@ -57,6 +57,20 @@ final class AnyTimeCoreTests: XCTestCase {
         XCTAssertEqual(tokyo.dayText, "Tomorrow")
     }
 
+    func testDisplayedPresentationsHideZonesMatchingReferenceTime() {
+        let store = WorldClockStore(
+            persistence: InMemoryPersistence(
+                configuration: WorldClockConfiguration(
+                    favoriteTimeZoneIDs: ["UTC", "Europe/London", "Asia/Tokyo"]
+                )
+            ),
+            now: fixedDate
+        )
+
+        XCTAssertEqual(store.presentations.map(\.timeZoneID), ["UTC", "Europe/London", "Asia/Tokyo"])
+        XCTAssertEqual(store.displayedPresentations.map(\.timeZoneID), ["UTC", "Asia/Tokyo"])
+    }
+
     func testPresentationsRefreshWhenReferenceDateChanges() {
         let store = WorldClockStore(
             persistence: InMemoryPersistence(
@@ -190,6 +204,54 @@ final class AnyTimeCoreTests: XCTestCase {
 
         XCTAssertEqual(store.referenceCityName, "Beijing")
         XCTAssertEqual(store.referencePresentation?.title, "Beijing")
+    }
+
+    func testEnablingLocationTimeZoneMovesAutomaticZoneToFront() {
+        let store = WorldClockStore(
+            persistence: InMemoryPersistence(
+                configuration: WorldClockConfiguration(
+                    favoriteTimeZoneIDs: ["UTC", "Asia/Tokyo", "America/New_York"],
+                    automaticTimeZoneID: "America/Los_Angeles"
+                )
+            ),
+            now: fixedDate
+        )
+
+        store.usesLocationTimeZone = true
+
+        XCTAssertEqual(store.favoriteTimeZoneIDs.first, "America/Los_Angeles")
+    }
+
+    func testUpdatingAutomaticTimeZoneReplacesPreviousAutomaticZone() {
+        let store = WorldClockStore(
+            persistence: InMemoryPersistence(
+                configuration: WorldClockConfiguration(
+                    favoriteTimeZoneIDs: ["America/Los_Angeles", "UTC", "Asia/Tokyo"],
+                    usesLocationTimeZone: true,
+                    automaticTimeZoneID: "America/Los_Angeles"
+                )
+            ),
+            now: fixedDate
+        )
+
+        store.updateAutomaticTimeZone(id: "Asia/Shanghai")
+
+        XCTAssertEqual(store.favoriteTimeZoneIDs, ["Asia/Shanghai", "UTC", "Asia/Tokyo"])
+    }
+
+    func testStoredLocationTimeZoneConfigurationKeepsAutomaticZoneFirst() {
+        let store = WorldClockStore(
+            persistence: InMemoryPersistence(
+                configuration: WorldClockConfiguration(
+                    favoriteTimeZoneIDs: ["UTC", "Asia/Tokyo"],
+                    usesLocationTimeZone: true,
+                    automaticTimeZoneID: "America/Los_Angeles"
+                )
+            ),
+            now: fixedDate
+        )
+
+        XCTAssertEqual(store.favoriteTimeZoneIDs.first, "America/Los_Angeles")
     }
 }
 

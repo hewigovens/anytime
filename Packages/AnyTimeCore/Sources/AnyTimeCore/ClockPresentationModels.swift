@@ -23,6 +23,7 @@ public struct ClockPresentation: Identifiable, Equatable, Sendable {
     public let dayText: String?
     public let copyText: String
     public let isReference: Bool
+    public let isSameTimeAsReference: Bool
 
     public var id: String { timeZoneID }
 }

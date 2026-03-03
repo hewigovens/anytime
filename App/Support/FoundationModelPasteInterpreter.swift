@@ -9,7 +9,7 @@ struct FoundationModelPasteHints {
 #if canImport(FoundationModels)
 import FoundationModels
 
-@available(iOS 26.0, *)
+@available(iOS 26.0, macOS 26.0, *)
 enum FoundationModelPasteInterpreter {
     static func interpret(_ text: String) async -> FoundationModelPasteHints? {
         let model = SystemLanguageModel.default
