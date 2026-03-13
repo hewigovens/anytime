@@ -7,6 +7,9 @@ default_destination := "generic/platform=iOS Simulator"
 macos_destination := "generic/platform=macOS"
 testflight_script := "./scripts/testflight.sh"
 screenshot_script := "./scripts/app_store_screenshots.sh"
+run_ios_simulator_script := "./scripts/run_ios_simulator.sh"
+run_derived_data := "./build/run/DerivedData"
+run_device_id := "863DCA4D-25BC-4E56-B6DA-D94FEC42A174"
 
 default:
     @just --list
@@ -32,6 +35,9 @@ test:
 build destination=default_destination:
     set -o pipefail
     xcodebuild -scheme {{scheme}} -project {{project}} -destination '{{destination}}' build | { command -v xcbeautify >/dev/null && xcbeautify || cat; }
+
+run device_id=run_device_id:
+    {{run_ios_simulator_script}} "{{device_id}}" "{{run_derived_data}}"
 
 build-macos destination=macos_destination:
     set -o pipefail
