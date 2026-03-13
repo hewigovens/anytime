@@ -131,6 +131,19 @@ private extension SettingsView {
                         Divider()
 
                         macSettingsButtonRow(
+                            title: "About",
+                            systemImage: "info.circle",
+                            tint: AppTheme.magic
+                        ) {
+                            guard let aboutURL = URL(string: Self.aboutURL) else {
+                                return
+                            }
+                            openURL(aboutURL)
+                        }
+
+                        Divider()
+
+                        macSettingsButtonRow(
                             title: "Rate on App Store",
                             systemImage: "star.bubble",
                             tint: AppTheme.warm
@@ -212,6 +225,19 @@ private extension SettingsView {
                     title: "Version",
                     systemImage: "app.badge",
                     tint: AppTheme.actionBlue
+                )
+            }
+
+            Button {
+                guard let aboutURL = URL(string: Self.aboutURL) else {
+                    return
+                }
+                openURL(aboutURL)
+            } label: {
+                SettingsRowLabel(
+                    title: "About",
+                    systemImage: "info.circle",
+                    tint: AppTheme.magic
                 )
             }
 
@@ -314,5 +340,6 @@ private extension Bundle {
 }
 
 private extension SettingsView {
+    static let aboutURL = "https://fourplexlabs.github.io/AnyTime"
     static let appStoreReviewURL = "https://apps.apple.com/us/app/anytime-timezone-calculator/id1291735859?action=write-review"
 }
