@@ -1,9 +1,7 @@
 import AnyTimeCore
+import CoreLocation
 import Foundation
 import Observation
-
-#if canImport(CoreLocation)
-import CoreLocation
 
 @MainActor
 @Observable
@@ -111,4 +109,3 @@ final class LocationTimeZoneMonitor: NSObject, @preconcurrency CLLocationManager
         }
     }
 }
-#endif

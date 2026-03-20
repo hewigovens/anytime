@@ -1,7 +1,5 @@
 import AnyTimeCore
 import Foundation
-
-#if canImport(EventKit)
 import EventKit
 
 @MainActor
@@ -90,4 +88,3 @@ private extension CalendarEventStore {
         }
     }
 }
-#endif
