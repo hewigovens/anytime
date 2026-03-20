@@ -1,7 +1,5 @@
 import AnyTimeCore
 import Foundation
-
-#if canImport(EventKit)
 import EventKit
 
 @MainActor
@@ -16,7 +14,7 @@ final class CalendarEventStore {
         try await requestAccessIfNeeded()
 
         guard let calendar = eventStore.defaultCalendarForNewEvents else {
-            throw CalendarEventStoreError.noCalendar
+            throw Error.noCalendar
         }
 
         let event = EKEvent(eventStore: eventStore)
@@ -31,7 +29,7 @@ final class CalendarEventStore {
         do {
             try eventStore.save(event, span: .thisEvent, commit: true)
         } catch {
-            throw CalendarEventStoreError.saveFailed
+            throw Error.saveFailed
         }
 
         return "Added “\(savedTitle)” to Calendar for \(presentation.formattedTime)."
@@ -46,7 +44,7 @@ final class CalendarEventStore {
         case .fullAccess, .writeOnly:
             return
         case .notDetermined:
-            let granted = try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Bool, Error>) in
+            let granted = try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Bool, any Swift.Error>) in
                 eventStore.requestWriteOnlyAccessToEvents { granted, error in
                     if let error {
                         continuation.resume(throwing: error)
@@ -57,12 +55,12 @@ final class CalendarEventStore {
             }
 
             guard granted else {
-                throw CalendarEventStoreError.accessDenied
+                throw Error.accessDenied
             }
         case .denied, .restricted:
-            throw CalendarEventStoreError.accessDenied
+            throw Error.accessDenied
         @unknown default:
-            throw CalendarEventStoreError.accessDenied
+            throw Error.accessDenied
         }
     }
 
@@ -72,43 +70,21 @@ final class CalendarEventStore {
     }
 }
 
-private enum CalendarEventStoreError: LocalizedError {
-    case accessDenied
-    case noCalendar
-    case saveFailed
+private extension CalendarEventStore {
+    enum Error: LocalizedError {
+        case accessDenied
+        case noCalendar
+        case saveFailed
 
-    var errorDescription: String? {
-        switch self {
-        case .accessDenied:
-            return "Calendar access is unavailable. Allow Calendar access in Settings."
-        case .noCalendar:
-            return "No calendar is available on this device."
-        case .saveFailed:
-            return "Couldn’t save the calendar event."
+        var errorDescription: String? {
+            switch self {
+            case .accessDenied:
+                "Calendar access is unavailable. Allow Calendar access in Settings."
+            case .noCalendar:
+                "No calendar is available on this device."
+            case .saveFailed:
+                "Couldn’t save the calendar event."
+            }
         }
     }
 }
-#else
-@MainActor
-final class CalendarEventStore {
-    func createEvent(
-        title: String,
-        for presentation: ClockPresentation,
-        referenceDate: Date
-    ) async throws -> String {
-        throw CalendarEventStoreFallbackError.unavailable
-    }
-
-    func defaultTitle(for presentation: ClockPresentation) -> String {
-        "\(presentation.title) \(presentation.formattedTime)"
-    }
-}
-
-private enum CalendarEventStoreFallbackError: LocalizedError {
-    case unavailable
-
-    var errorDescription: String? {
-        "Calendar is unavailable on this device."
-    }
-}
-#endif

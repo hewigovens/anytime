@@ -86,6 +86,30 @@ final class AnyTimeCoreTests: XCTestCase {
         XCTAssertNotEqual(store.referencePresentation?.formattedTime, initialTime)
     }
 
+    func testTimeOnlyFormatRespectsTwentyFourHourFormat() {
+        let formatted = ClockDateStyle.timeOnly.formatted(
+            date: formattedDate,
+            in: TimeZone(secondsFromGMT: 0)!,
+            locale: Locale(identifier: "en_US_POSIX"),
+            hourFormat: .twentyFourHour
+        )
+
+        XCTAssertEqual(formatted, "14:05")
+    }
+
+    func testTimeOnlyFormatRespectsTwelveHourFormat() {
+        let formatted = ClockDateStyle.timeOnly.formatted(
+            date: formattedDate,
+            in: TimeZone(secondsFromGMT: 0)!,
+            locale: Locale(identifier: "en_US_POSIX"),
+            hourFormat: .twelveHour
+        )
+
+        let normalized = formatted.replacingOccurrences(of: "\u{202F}", with: " ")
+
+        XCTAssertEqual(normalized, "2:05 PM")
+    }
+
     func testSearchIncludesAlreadySelectedZones() {
         let store = WorldClockStore(
             persistence: InMemoryPersistence(
@@ -206,17 +230,76 @@ final class AnyTimeCoreTests: XCTestCase {
         XCTAssertEqual(store.referencePresentation?.title, "Beijing")
     }
 
+    func testClockHourFormatDefaultsFollowLocaleConventions() {
+        XCTAssertEqual(ClockHourFormat.defaultForCurrentLocale(Locale(identifier: "en_US")), .twelveHour)
+        XCTAssertEqual(ClockHourFormat.defaultForCurrentLocale(Locale(identifier: "en_GB")), .twentyFourHour)
+        XCTAssertEqual(ClockHourFormat.defaultForCurrentLocale(Locale(identifier: "fr_FR")), .twentyFourHour)
+    }
+
+    func testDecodingLegacyConfigurationLeavesHourFormatFollowingSystemLocale() throws {
+        let legacyData = """
+        {
+          "favoriteTimeZoneIDs": ["UTC"],
+          "preferredCityNamesByTimeZoneID": {},
+          "labelStyle": "city",
+          "dateStyle": "weekdayAndTime"
+        }
+        """.data(using: .utf8)!
+
+        let decoded = try JSONDecoder().decode(WorldClockConfiguration.self, from: legacyData)
+
+        XCTAssertNil(decoded.explicitHourFormat)
+    }
+
+    func testStoreDoesNotPersistExplicitHourFormatForLegacyConfiguration() {
+        let persistence = RecordingPersistence(
+            configuration: WorldClockConfiguration(
+                favoriteTimeZoneIDs: ["UTC"],
+                hourFormat: nil
+            )
+        )
+
+        _ = WorldClockStore(
+            persistence: persistence,
+            now: fixedDate
+        )
+
+        XCTAssertNil(persistence.savedConfigurations.last?.explicitHourFormat)
+    }
+
 }
 
 private let fixedDate = ISO8601DateFormatter().date(from: "2024-01-15T12:00:00Z")!
 private let crossingDate = ISO8601DateFormatter().date(from: "2024-01-15T23:00:00Z")!
+private let formattedDate = ISO8601DateFormatter().date(from: "2024-01-15T14:05:00Z")!
 
-private struct InMemoryPersistence: WorldClockPersisting {
+private final class InMemoryPersistence: WorldClockPersisting {
     let configuration: WorldClockConfiguration?
+
+    init(configuration: WorldClockConfiguration?) {
+        self.configuration = configuration
+    }
 
     func loadConfiguration() -> WorldClockConfiguration? {
         configuration
     }
 
     func saveConfiguration(_ configuration: WorldClockConfiguration) {}
+}
+
+private final class RecordingPersistence: WorldClockPersisting {
+    let configuration: WorldClockConfiguration?
+    private(set) var savedConfigurations: [WorldClockConfiguration] = []
+
+    init(configuration: WorldClockConfiguration?) {
+        self.configuration = configuration
+    }
+
+    func loadConfiguration() -> WorldClockConfiguration? {
+        configuration
+    }
+
+    func saveConfiguration(_ configuration: WorldClockConfiguration) {
+        savedConfigurations.append(configuration)
+    }
 }

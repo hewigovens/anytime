@@ -1,9 +1,7 @@
+import AnyTimeCore
+import CoreLocation
 import Foundation
 import Observation
-import AnyTimeCore
-
-#if canImport(CoreLocation)
-import CoreLocation
 
 @MainActor
 @Observable
@@ -111,15 +109,3 @@ final class LocationTimeZoneMonitor: NSObject, @preconcurrency CLLocationManager
         }
     }
 }
-#else
-@MainActor
-@Observable
-final class LocationTimeZoneMonitor {
-    private(set) var currentTimeZoneID: String?
-    private(set) var currentCityName: String?
-
-    func refreshIfAuthorized() {}
-
-    func requestCurrentLocation() {}
-}
-#endif

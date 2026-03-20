@@ -12,14 +12,20 @@ struct ReferenceCalculatorCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 18) {
-            VStack(alignment: .leading, spacing: 5) {
-                Text("Timezone Calculator")
-                    .font(.system(.title3, design: .rounded).weight(.bold))
-                    .foregroundStyle(.primary)
+            HStack(alignment: .top, spacing: 16) {
+                VStack(alignment: .leading, spacing: 5) {
+                    Text("Timezone Calculator")
+                        .font(.system(.title3, design: .rounded).weight(.bold))
+                        .foregroundStyle(.primary)
 
-                Text("Tap the date or time to change it quickly.")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    Text("Tap the date or time to change it quickly.")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+
+                Spacer(minLength: 0)
+
+                hourFormatToggle
             }
 
             if let presentation = store.referencePresentation {
@@ -139,6 +145,7 @@ struct ReferenceCalculatorCard: View {
             .datePickerStyle(.field)
             .labelsHidden()
             .environment(\.timeZone, store.referenceTimeZone)
+            .environment(\.locale, store.hourFormat.pickerLocale())
             .frame(maxWidth: .infinity, alignment: .leading)
 
             Text(store.referenceTimeZone.identifier.replacingOccurrences(of: "_", with: " "))
@@ -148,23 +155,34 @@ struct ReferenceCalculatorCard: View {
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 12)
-        .background(AppTheme.searchFieldSurface, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
-        .overlay {
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .stroke(AppTheme.searchFieldStroke, lineWidth: 1)
-        }
+        .appChrome(in: RoundedRectangle(cornerRadius: 16, style: .continuous))
         #else
-        DatePicker(
-            "Reference time",
-            selection: $store.referenceDate,
-            displayedComponents: [.hourAndMinute, .date]
-        )
-        .datePickerStyle(.compact)
-        .labelsHidden()
-        .environment(\.timeZone, store.referenceTimeZone)
-        .tint(AppTheme.accent)
-        .frame(maxWidth: .infinity, alignment: .leading)
+        HStack(spacing: 10) {
+            DatePicker(
+                "Reference time",
+                selection: $store.referenceDate,
+                displayedComponents: [.hourAndMinute, .date]
+            )
+            .datePickerStyle(.compact)
+            .labelsHidden()
+            .environment(\.timeZone, store.referenceTimeZone)
+            .environment(\.locale, store.hourFormat.pickerLocale())
+            .tint(AppTheme.accent)
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
         #endif
+    }
+
+    private var hourFormatToggle: some View {
+        Picker("Hour format", selection: $store.hourFormat) {
+            Text("24h").tag(ClockHourFormat.twentyFourHour)
+            Text("12h").tag(ClockHourFormat.twelveHour)
+        }
+        .pickerStyle(.segmented)
+        .frame(width: 116)
+        .controlSize(.small)
+        .labelsHidden()
+        .accessibilityLabel("Hour format")
     }
 
     private func referenceZoneMenu<Label: View>(
@@ -258,9 +276,4 @@ struct ReferenceCalculatorCard: View {
         .buttonStyle(QuickActionButtonStyle(role: action.role))
         .disabled(action.performsPaste && isResolvingPaste)
     }
-}
-
-private struct PasteFeedback {
-    let message: String
-    let isError: Bool
 }

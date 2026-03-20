@@ -30,6 +30,15 @@ public final class WorldClockStore {
         }
     }
 
+    public var hourFormat: ClockHourFormat {
+        get { configuration.hourFormat }
+        set {
+            mutateConfiguration { configuration in
+                configuration.hourFormat = newValue
+            }
+        }
+    }
+
     public var favoriteTimeZoneIDs: [String] {
         configuration.favoriteTimeZoneIDs
     }
@@ -249,7 +258,8 @@ public final class WorldClockStore {
 
         let formattedTime = configuration.dateStyle.formatted(
             date: referenceDate,
-            in: timeZone
+            in: timeZone,
+            hourFormat: configuration.hourFormat
         )
 
         let copyText = "\(cityName): \(formattedTime) (\(utcOffsetText))"

@@ -47,14 +47,10 @@ struct PullDownEasterEggView: View {
                         .minimumScaleFactor(0.82)
                         .padding(.horizontal, 18)
                         .padding(.vertical, 12)
-                        .background(
-                            Capsule(style: .continuous)
-                                .fill(AppTheme.searchFieldSurface.opacity(0.92))
+                        .appChrome(
+                            in: Capsule(style: .continuous),
+                            fill: AppTheme.searchFieldSurface.opacity(0.92)
                         )
-                        .overlay {
-                            Capsule(style: .continuous)
-                                .stroke(AppTheme.searchFieldStroke, lineWidth: 1)
-                        }
                         .rotationEffect(.degrees(quipTilt))
                         .opacity(revealProgress)
 

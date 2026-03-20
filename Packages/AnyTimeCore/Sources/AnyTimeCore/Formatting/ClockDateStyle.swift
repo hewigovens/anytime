@@ -1,21 +1,5 @@
 import Foundation
 
-public enum ClockLabelStyle: String, Codable, CaseIterable, Identifiable, Sendable {
-    case city
-    case abbreviation
-
-    public var id: String { rawValue }
-
-    public var title: String {
-        switch self {
-        case .city:
-            "City"
-        case .abbreviation:
-            "Abbreviation"
-        }
-    }
-}
-
 public enum ClockDateStyle: String, Codable, CaseIterable, Identifiable, Sendable {
     case timeOnly
     case weekdayAndTime
@@ -37,7 +21,8 @@ public enum ClockDateStyle: String, Codable, CaseIterable, Identifiable, Sendabl
     public func formatted(
         date: Date,
         in timeZone: TimeZone,
-        locale: Locale = .autoupdatingCurrent
+        locale: Locale = .autoupdatingCurrent,
+        hourFormat: ClockHourFormat
     ) -> String {
         let formatter = DateFormatter()
         formatter.locale = locale
@@ -45,13 +30,11 @@ public enum ClockDateStyle: String, Codable, CaseIterable, Identifiable, Sendabl
 
         switch self {
         case .timeOnly:
-            formatter.dateStyle = .none
-            formatter.timeStyle = .short
+            formatter.setLocalizedDateFormatFromTemplate(hourFormat == .twentyFourHour ? "Hm" : "hma")
         case .weekdayAndTime:
-            formatter.setLocalizedDateFormatFromTemplate("EEEjm")
+            formatter.setLocalizedDateFormatFromTemplate(hourFormat == .twentyFourHour ? "EEEHm" : "EEEhma")
         case .dateAndTime:
-            formatter.dateStyle = .medium
-            formatter.timeStyle = .short
+            formatter.setLocalizedDateFormatFromTemplate(hourFormat == .twentyFourHour ? "yMMMdHm" : "yMMMdhma")
         }
 
         return formatter.string(from: date)

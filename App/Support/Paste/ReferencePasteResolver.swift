@@ -1,18 +1,6 @@
 import AnyTimeCore
 import Foundation
 
-struct ReferencePasteResolution {
-    let date: Date?
-    let timeZoneID: String?
-    let preferredCityName: String?
-    let message: String
-}
-
-enum ReferencePasteResolutionResult {
-    case success(ReferencePasteResolution)
-    case failure(String)
-}
-
 @MainActor
 enum ReferencePasteResolver {
     static func resolve(from clipboard: String) async -> ReferencePasteResolutionResult {

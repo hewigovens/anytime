@@ -2,7 +2,6 @@ import AnyTimeCore
 import SwiftUI
 
 #if os(iOS)
-import UIKit
 struct ReferenceDateEditorView: View {
     @Bindable var store: WorldClockStore
     @Environment(\.dismiss) private var dismiss
@@ -59,11 +58,7 @@ struct ReferenceDateEditorView: View {
                 }
                 .padding(.vertical, 8)
                 .frame(maxWidth: .infinity)
-                .background(AppTheme.searchFieldSurface, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
-                .overlay {
-                    RoundedRectangle(cornerRadius: 24, style: .continuous)
-                        .stroke(AppTheme.searchFieldStroke, lineWidth: 1)
-                }
+                .appChrome(in: RoundedRectangle(cornerRadius: 24, style: .continuous))
             }
             .frame(maxWidth: 520, alignment: .leading)
             .padding(.horizontal, 28)
@@ -78,68 +73,10 @@ struct ReferenceDateEditorView: View {
     private var referencePicker: some View {
         WheelDatePicker(
             date: $store.referenceDate,
-            timeZone: store.referenceTimeZone
+            timeZone: store.referenceTimeZone,
+            locale: store.hourFormat.pickerLocale()
         )
         .frame(width: 340, height: 216)
-    }
-}
-
-private struct WheelDatePicker: UIViewRepresentable {
-    @Binding var date: Date
-    let timeZone: TimeZone
-
-    func makeCoordinator() -> Coordinator {
-        Coordinator(date: $date)
-    }
-
-    func makeUIView(context: Context) -> UIView {
-        let container = UIView()
-        container.backgroundColor = .clear
-
-        let picker = UIDatePicker()
-        picker.translatesAutoresizingMaskIntoConstraints = false
-        picker.datePickerMode = .dateAndTime
-        picker.preferredDatePickerStyle = .wheels
-        picker.locale = .autoupdatingCurrent
-        picker.timeZone = timeZone
-        picker.date = date
-        picker.addTarget(context.coordinator, action: #selector(Coordinator.dateChanged(_:)), for: .valueChanged)
-
-        container.addSubview(picker)
-
-        NSLayoutConstraint.activate([
-            picker.centerXAnchor.constraint(equalTo: container.centerXAnchor),
-            picker.centerYAnchor.constraint(equalTo: container.centerYAnchor)
-        ])
-
-        context.coordinator.picker = picker
-        return container
-    }
-
-    func updateUIView(_ uiView: UIView, context: Context) {
-        guard let picker = context.coordinator.picker else {
-            return
-        }
-
-        picker.timeZone = timeZone
-        if picker.date != date {
-            picker.date = date
-        }
-    }
-
-    final class Coordinator: NSObject {
-        @Binding private var date: Date
-        weak var picker: UIDatePicker?
-
-        init(date: Binding<Date>) {
-            _date = date
-        }
-
-        @MainActor
-        @objc
-        func dateChanged(_ sender: UIDatePicker) {
-            date = sender.date
-        }
     }
 }
 #endif
