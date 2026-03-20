@@ -5,20 +5,25 @@ public struct WorldClockConfiguration: Codable, Equatable, Sendable {
     public var preferredCityNamesByTimeZoneID: [String: String]
     public var labelStyle: ClockLabelStyle
     public var dateStyle: ClockDateStyle
-    public var hourFormat: ClockHourFormat
+    var explicitHourFormat: ClockHourFormat?
+
+    public var hourFormat: ClockHourFormat {
+        get { explicitHourFormat ?? .defaultForCurrentLocale() }
+        set { explicitHourFormat = newValue }
+    }
 
     public init(
         favoriteTimeZoneIDs: [String],
         preferredCityNamesByTimeZoneID: [String: String] = [:],
         labelStyle: ClockLabelStyle = .city,
         dateStyle: ClockDateStyle = .weekdayAndTime,
-        hourFormat: ClockHourFormat = .defaultForCurrentLocale()
+        hourFormat: ClockHourFormat? = nil
     ) {
         self.favoriteTimeZoneIDs = favoriteTimeZoneIDs
         self.preferredCityNamesByTimeZoneID = preferredCityNamesByTimeZoneID
         self.labelStyle = labelStyle
         self.dateStyle = dateStyle
-        self.hourFormat = hourFormat
+        explicitHourFormat = hourFormat
     }
 
     enum CodingKeys: String, CodingKey {
@@ -35,7 +40,7 @@ public struct WorldClockConfiguration: Codable, Equatable, Sendable {
         preferredCityNamesByTimeZoneID = try container.decodeIfPresent([String: String].self, forKey: .preferredCityNamesByTimeZoneID) ?? [:]
         labelStyle = try container.decodeIfPresent(ClockLabelStyle.self, forKey: .labelStyle) ?? .city
         dateStyle = try container.decodeIfPresent(ClockDateStyle.self, forKey: .dateStyle) ?? .weekdayAndTime
-        hourFormat = try container.decodeIfPresent(ClockHourFormat.self, forKey: .hourFormat) ?? .defaultForCurrentLocale()
+        explicitHourFormat = try container.decodeIfPresent(ClockHourFormat.self, forKey: .hourFormat)
     }
 
     public func encode(to encoder: any Encoder) throws {
@@ -44,7 +49,7 @@ public struct WorldClockConfiguration: Codable, Equatable, Sendable {
         try container.encode(preferredCityNamesByTimeZoneID, forKey: .preferredCityNamesByTimeZoneID)
         try container.encode(labelStyle, forKey: .labelStyle)
         try container.encode(dateStyle, forKey: .dateStyle)
-        try container.encode(hourFormat, forKey: .hourFormat)
+        try container.encodeIfPresent(explicitHourFormat, forKey: .hourFormat)
     }
 
     public static func `default`(currentTimeZoneID: String) -> WorldClockConfiguration {
@@ -61,8 +66,7 @@ public struct WorldClockConfiguration: Codable, Equatable, Sendable {
             favoriteTimeZoneIDs: ClockMath.uniqueValidTimeZoneIDs(from: candidates),
             preferredCityNamesByTimeZoneID: [:],
             labelStyle: .city,
-            dateStyle: .weekdayAndTime,
-            hourFormat: .defaultForCurrentLocale()
+            dateStyle: .weekdayAndTime
         )
     }
 }

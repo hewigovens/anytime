@@ -33,11 +33,43 @@ public enum ClockHourFormat: String, Codable, CaseIterable, Identifiable, Sendab
 
     public static func defaultForCurrentLocale(_ locale: Locale = .autoupdatingCurrent) -> ClockHourFormat {
         let format = DateFormatter.dateFormat(fromTemplate: "j", options: 0, locale: locale) ?? ""
+        let unquotedFormat = format.removingQuotedDateFormatLiterals()
 
-        if format.contains("a") || format.contains("h") || format.contains("K") {
+        if unquotedFormat.contains("a") || unquotedFormat.contains("h") || unquotedFormat.contains("K") {
             return .twelveHour
         }
 
         return .twentyFourHour
+    }
+}
+
+private extension String {
+    func removingQuotedDateFormatLiterals() -> String {
+        var result = ""
+        var index = startIndex
+        var isInsideQuote = false
+
+        while index < endIndex {
+            let character = self[index]
+            let nextIndex = self.index(after: index)
+
+            if character == "'" {
+                if nextIndex < endIndex, self[nextIndex] == "'" {
+                    if isInsideQuote == false {
+                        result.append("'")
+                    }
+                    index = self.index(after: nextIndex)
+                    continue
+                }
+
+                isInsideQuote.toggle()
+            } else if isInsideQuote == false {
+                result.append(character)
+            }
+
+            index = nextIndex
+        }
+
+        return result
     }
 }
