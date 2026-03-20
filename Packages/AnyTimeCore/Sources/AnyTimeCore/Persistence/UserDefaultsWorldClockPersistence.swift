@@ -1,10 +1,5 @@
 import Foundation
 
-public protocol WorldClockPersisting {
-    func loadConfiguration() -> WorldClockConfiguration?
-    func saveConfiguration(_ configuration: WorldClockConfiguration)
-}
-
 public struct UserDefaultsWorldClockPersistence: WorldClockPersisting {
     public let userDefaults: UserDefaults
     public let key: String

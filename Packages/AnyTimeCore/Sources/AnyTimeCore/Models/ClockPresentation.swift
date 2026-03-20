@@ -1,17 +1,3 @@
-import Foundation
-
-public struct TimeZoneSection: Identifiable, Hashable, Sendable {
-    public let title: String
-    public let items: [TimeZoneDescriptor]
-
-    public var id: String { title }
-
-    public init(title: String, items: [TimeZoneDescriptor]) {
-        self.title = title
-        self.items = items
-    }
-}
-
 public struct ClockPresentation: Identifiable, Equatable, Sendable {
     public let timeZoneID: String
     public let selectionTitle: String

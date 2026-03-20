@@ -1,11 +1,5 @@
 import Foundation
 
-struct FoundationModelPasteHints {
-    let cityQuery: String?
-    let timeZoneID: String?
-    let offsetToken: String?
-}
-
 #if canImport(FoundationModels)
 import FoundationModels
 

@@ -86,6 +86,30 @@ final class AnyTimeCoreTests: XCTestCase {
         XCTAssertNotEqual(store.referencePresentation?.formattedTime, initialTime)
     }
 
+    func testTimeOnlyFormatRespectsTwentyFourHourFormat() {
+        let formatted = ClockDateStyle.timeOnly.formatted(
+            date: formattedDate,
+            in: TimeZone(secondsFromGMT: 0)!,
+            locale: Locale(identifier: "en_US_POSIX"),
+            hourFormat: .twentyFourHour
+        )
+
+        XCTAssertEqual(formatted, "14:05")
+    }
+
+    func testTimeOnlyFormatRespectsTwelveHourFormat() {
+        let formatted = ClockDateStyle.timeOnly.formatted(
+            date: formattedDate,
+            in: TimeZone(secondsFromGMT: 0)!,
+            locale: Locale(identifier: "en_US_POSIX"),
+            hourFormat: .twelveHour
+        )
+
+        let normalized = formatted.replacingOccurrences(of: "\u{202F}", with: " ")
+
+        XCTAssertEqual(normalized, "2:05 PM")
+    }
+
     func testSearchIncludesAlreadySelectedZones() {
         let store = WorldClockStore(
             persistence: InMemoryPersistence(
@@ -206,10 +230,16 @@ final class AnyTimeCoreTests: XCTestCase {
         XCTAssertEqual(store.referencePresentation?.title, "Beijing")
     }
 
+    func testClockHourFormatDefaultsFollowLocaleConventions() {
+        XCTAssertEqual(ClockHourFormat.defaultForCurrentLocale(Locale(identifier: "en_US")), .twelveHour)
+        XCTAssertEqual(ClockHourFormat.defaultForCurrentLocale(Locale(identifier: "en_GB")), .twentyFourHour)
+    }
+
 }
 
 private let fixedDate = ISO8601DateFormatter().date(from: "2024-01-15T12:00:00Z")!
 private let crossingDate = ISO8601DateFormatter().date(from: "2024-01-15T23:00:00Z")!
+private let formattedDate = ISO8601DateFormatter().date(from: "2024-01-15T14:05:00Z")!
 
 private struct InMemoryPersistence: WorldClockPersisting {
     let configuration: WorldClockConfiguration?

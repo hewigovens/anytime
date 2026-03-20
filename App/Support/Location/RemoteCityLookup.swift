@@ -2,20 +2,6 @@ import AnyTimeCore
 import CoreLocation
 import Foundation
 
-struct RemoteCityMatch: Identifiable, Hashable {
-    let title: String
-    let subtitle: String
-    let timeZoneID: String
-
-    var id: String {
-        "\(timeZoneID)|\(title)|\(subtitle)"
-    }
-
-    var searchDeduplicationKey: String {
-        "\(timeZoneID.lowercased())|\(title.normalizedPickerSearchText)"
-    }
-}
-
 enum RemoteCityLookup {
     static func lookup(matching query: String) async throws -> [RemoteCityMatch] {
         let placemarks = try await CLGeocoder().geocodeAddressString(query)
@@ -54,8 +40,8 @@ enum RemoteCityLookup {
             let subtitle = subtitleComponents.isEmpty
                 ? descriptor.locationLine
                 : Array(NSOrderedSet(array: subtitleComponents))
-                .compactMap { $0 as? String }
-                .joined(separator: " • ")
+                    .compactMap { $0 as? String }
+                    .joined(separator: " • ")
 
             let match = RemoteCityMatch(
                 title: title,
@@ -69,12 +55,5 @@ enum RemoteCityLookup {
         }
 
         return Array(matches.prefix(8))
-    }
-}
-
-extension String {
-    var normalizedPickerSearchText: String {
-        folding(options: [.diacriticInsensitive, .caseInsensitive], locale: .autoupdatingCurrent)
-            .lowercased()
     }
 }

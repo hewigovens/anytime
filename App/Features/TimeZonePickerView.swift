@@ -266,11 +266,7 @@ struct TimeZonePickerView: View {
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 12)
-        .background(AppTheme.searchFieldSurface, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
-        .overlay {
-            RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .stroke(AppTheme.searchFieldStroke, lineWidth: 1)
-        }
+        .appChrome(in: RoundedRectangle(cornerRadius: 18, style: .continuous))
         .shadow(color: AppTheme.shadow.opacity(colorScheme == .dark ? 0.9 : 0.5), radius: 14, y: 6)
     }
 
