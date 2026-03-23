@@ -180,3 +180,7 @@ The clipboard parser can resolve:
 - additional city resolution through geocoding
 
 On supported iOS 26 devices, the app can also use Apple's local Foundation Models APIs as a best-effort hinting layer.
+
+## License
+
+Apache-2.0 with additional App Store restriction. See [LICENSE](LICENSE).
