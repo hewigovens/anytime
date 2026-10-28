@@ -7,25 +7,18 @@ public enum WorldClockLayout: Equatable, Sendable {
 }
 
 public enum WorldClockHingeSplit: Equatable, Sendable {
-    /// Keeps the calculator-over-clocks reading order, and works whether the
-    /// device rests in a laptop or a book posture.
     case stacked
     case sideBySide
 }
 
-/// Deliberately free of SwiftUI and UIKit so layout decisions are testable
-/// away from a device.
 public struct WorldClockLayoutPolicy: Equatable, Sendable {
     public var minimumCalculatorColumnWidth: CGFloat
     public var minimumClockColumnWidth: CGFloat
     public var maximumCalculatorColumnWidth: CGFloat
     public var columnSpacing: CGFloat
     public var horizontalInset: CGFloat
-    /// The height floor keeps short, wide contexts such as a phone in landscape
-    /// on the single column layout, where the tall calculator card still fits.
     public var twoColumnMinimumHeight: CGFloat
-    /// A hinge angle does not reveal whether the device is resting in a laptop
-    /// or a book posture, so the split is fixed rather than guessed.
+    // Hinge angle does not identify the fold axis, so use a configured split.
     public var partiallyOpenSplit: WorldClockHingeSplit
     public var hingeGutter: CGFloat
 
@@ -49,15 +42,10 @@ public struct WorldClockLayoutPolicy: Equatable, Sendable {
         self.hingeGutter = hingeGutter
     }
 
-    /// Derived from the two minimum column widths so the threshold cannot drift
-    /// away from the widths it protects.
     public var twoColumnMinimumWidth: CGFloat {
         minimumCalculatorColumnWidth + minimumClockColumnWidth + columnSpacing + (horizontalInset * 2)
     }
 
-    /// A partially open hinge always wins over the size check: the panes are
-    /// split across the hinge so content stays readable while the device rests
-    /// half folded.
     public func layout(posture: DevicePosture, size: CGSize) -> WorldClockLayout {
         if posture.isPartiallyOpen {
             return .hinged(partiallyOpenSplit)
@@ -70,21 +58,13 @@ public struct WorldClockLayoutPolicy: Equatable, Sendable {
         return .singleColumn
     }
 
-    /// The calculator column takes a comfortable share of the width while the
-    /// clock list keeps at least ``minimumClockColumnWidth``.
     public func calculatorColumnWidth(forAvailableWidth availableWidth: CGFloat) -> CGFloat {
         let contentWidth = max(0, availableWidth - (horizontalInset * 2))
         let clockShareCeiling = contentWidth - columnSpacing - minimumClockColumnWidth
         return max(minimumCalculatorColumnWidth, min(maximumCalculatorColumnWidth, clockShareCeiling))
     }
 
-    /// `creaseOffset` is the distance from the top of the content area down to
-    /// the crease. The content does not start at the top of the display, so
-    /// splitting it evenly would put the gutter above the fold and let a pane
-    /// cross the hinge.
-    ///
-    /// Falls back to an even split when the crease leaves either pane too short
-    /// to be useful.
+    /// `creaseOffset` is measured from the content top, below the header.
     public func stackedPaneHeights(
         contentHeight: CGFloat,
         creaseOffset: CGFloat,

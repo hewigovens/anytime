@@ -1,8 +1,6 @@
 import AnyTimeCore
 import SwiftUI
 
-/// The clock rows are supplied by the caller because they carry the home
-/// screen's selection and calendar state.
 struct WorldClockLayoutViews<ClockRows: View>: View {
     @Bindable var store: WorldClockStore
     let layout: WorldClockLayout
@@ -40,8 +38,6 @@ struct WorldClockLayoutViews<ClockRows: View>: View {
         return list.listChrome().observeScrollOffset(into: pullDownMonitor)
     }
 
-    /// The calculator column stays put while the clock list scrolls, so nudging
-    /// the reference time updates the clocks without scrolling away from them.
     private var twoColumn: some View {
         HStack(alignment: .top, spacing: policy.columnSpacing) {
             calculatorPane

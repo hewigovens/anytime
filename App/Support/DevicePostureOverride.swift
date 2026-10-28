@@ -1,11 +1,6 @@
 import AnyTimeCore
 import Foundation
 
-/// Overrides the reported device posture so the foldable layouts can be
-/// exercised in the Simulator.
-///
-/// Set `ANYTIME_POSTURE_OVERRIDE` to `closed`, `partially-open`, or
-/// `fully-open`. An unset or unknown value leaves the posture to the device.
 enum DevicePostureOverride {
     private static let environment = ProcessInfo.processInfo.environment
 

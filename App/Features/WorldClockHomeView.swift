@@ -185,7 +185,6 @@ struct WorldClockHomeView: View {
             .background(AppTheme.headerSurface)
     }
 
-    /// A zero-sized bridge that keeps the posture monitor in sync with the hinge.
     @ViewBuilder
     private var postureReader: some View {
         #if os(iOS)
@@ -195,15 +194,9 @@ struct WorldClockHomeView: View {
         #endif
     }
 
-    /// The layout is chosen from the display size, while the stacked panes are
-    /// sized from the height left below the header. Passing the display height as
-    /// the content height makes the panes and gutter overflow by the header's
-    /// height.
     private func contentArea(displaySize: CGSize, headerHeight: CGFloat) -> some View {
         let contentHeight = max(0, displaySize.height - headerHeight)
         let contentSize = CGSize(width: displaySize.width, height: contentHeight)
-        // The crease runs through the middle of the display, measured from the
-        // top of the content area.
         let creaseOffset = max(0, (displaySize.height / 2) - headerHeight)
 
         return WorldClockLayoutViews(

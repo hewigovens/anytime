@@ -5,9 +5,7 @@ import XCTest
 final class WorldClockLayoutTests: XCTestCase {
     private let policy = WorldClockLayoutPolicy()
 
-    /// iPhone Duo, folded closed: the 5.4-inch outer display.
     private let duoOuterDisplay = CGSize(width: 466, height: 678)
-    /// iPhone Duo, fully open: the 7.6-inch inner display.
     private let duoInnerDisplay = CGSize(width: 669, height: 951)
 
     func testPhonePortraitUsesSingleColumn() {
@@ -91,8 +89,6 @@ final class WorldClockLayoutTests: XCTestCase {
     func testStackedPanesFillTheContentHeightExactly() {
         let policy = WorldClockLayoutPolicy()
 
-        // Regression guard: passing the display height as the content height
-        // made the panes plus gutter overflow into the bottom toolbar.
         let contentHeight: CGFloat = 900
         let creaseOffset: CGFloat = (1000 / 2) - 100
         let heights = policy.stackedPaneHeights(
@@ -110,8 +106,6 @@ final class WorldClockLayoutTests: XCTestCase {
     func testStackedPanesCentreTheGutterOnTheCrease() {
         let policy = WorldClockLayoutPolicy()
 
-        // Content is 900 tall but the crease sits 300 below its top, because
-        // the header occupies the space above it.
         let heights = policy.stackedPaneHeights(contentHeight: 900, creaseOffset: 300)
         XCTAssertEqual(heights.top, 300 - (policy.hingeGutter / 2), accuracy: 0.001)
         XCTAssertEqual(heights.bottom, 600 - (policy.hingeGutter / 2), accuracy: 0.001)
@@ -121,8 +115,6 @@ final class WorldClockLayoutTests: XCTestCase {
     func testStackedPanesFallBackToEvenSplitWhenTheCreaseIsTooNearAnEdge() {
         let policy = WorldClockLayoutPolicy()
 
-        // A crease 10 points below the top cannot give both panes a usable
-        // height, so they are split evenly instead.
         let heights = policy.stackedPaneHeights(contentHeight: 900, creaseOffset: 10)
 
         XCTAssertEqual(heights.top, heights.bottom, accuracy: 0.001)

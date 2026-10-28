@@ -1,8 +1,6 @@
 import AnyTimeCore
 import SwiftUI
 
-/// `UIHingeInteraction` only reports through an interaction attached to a view,
-/// so the monitor is driven by ``HingePostureReader``.
 @MainActor
 @Observable
 final class DevicePostureMonitor {
@@ -13,8 +11,6 @@ final class DevicePostureMonitor {
     }
 
     func update(_ posture: DevicePosture) {
-        // An override pins the posture so the foldable layouts stay previewable
-        // on devices and simulators that cannot fold.
         guard DevicePostureOverride.current == nil, posture != self.posture else {
             return
         }
@@ -26,7 +22,6 @@ final class DevicePostureMonitor {
 #if canImport(UIKit)
 import UIKit
 
-/// Reports hinge changes from the view hierarchy to a ``DevicePostureMonitor``.
 struct HingePostureReader: UIViewRepresentable {
     let monitor: DevicePostureMonitor
 
@@ -41,7 +36,6 @@ struct HingePostureReader: UIViewRepresentable {
     }
 }
 
-/// Owns a hinge interaction for the view's lifetime.
 final class HingeObservingView: UIView {
     weak var monitor: DevicePostureMonitor?
 
@@ -60,8 +54,6 @@ final class HingeObservingView: UIView {
     override func didMoveToWindow() {
         super.didMoveToWindow()
 
-        // Outside a window no further updates arrive, so drop a stale posture
-        // rather than leaving the last one pinned.
         if window == nil {
             monitor?.update(.unavailable)
         }
@@ -69,9 +61,7 @@ final class HingeObservingView: UIView {
 
     private func installHingeInteraction() {
         #if compiler(>=6.4)
-        // `compiler` gates the API's existence because SDKs before Xcode 27.1 do
-        // not declare UIHinge at all, and `@available` alone only guards the
-        // runtime, not whether the type compiles.
+        // Older SDKs lack these types, so a runtime availability check is insufficient.
         guard #available(iOS 27.1, *) else {
             return
         }

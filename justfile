@@ -70,7 +70,6 @@ capture-app-store-screenshots-ios ios_loc="":
 capture-duo-screenshots:
     {{screenshot_script}} capture-duo
 
-# Build and launch on the iPhone Duo simulator, optionally previewing a posture:
 capture-posture-duo posture="":
     xcodegen generate
     set -o pipefail

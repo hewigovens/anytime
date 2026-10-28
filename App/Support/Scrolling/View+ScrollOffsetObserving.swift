@@ -1,8 +1,6 @@
 import SwiftUI
 
 extension View {
-    /// Uses `onScrollGeometryChange` where it is available and falls back to the
-    /// platform scroll view observer on older systems.
     @ViewBuilder
     func observeScrollOffset(into monitor: PullDownMonitor) -> some View {
         if #available(iOS 18.0, macOS 15.0, *) {
