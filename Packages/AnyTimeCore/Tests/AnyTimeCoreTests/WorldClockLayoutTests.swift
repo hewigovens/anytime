@@ -88,6 +88,38 @@ final class WorldClockLayoutTests: XCTestCase {
         XCTAssertEqual(layout, .hinged(.sideBySide))
     }
 
+    func testStackedPanesCentreTheGutterOnTheCrease() {
+        let policy = WorldClockLayoutPolicy()
+
+        // Content is 900 tall but the crease sits 300 below its top, because
+        // the header occupies the space above it.
+        let heights = policy.stackedPaneHeights(contentHeight: 900, creaseOffset: 300)
+
+        XCTAssertEqual(heights.top, 300 - (policy.hingeGutter / 2), accuracy: 0.001)
+        XCTAssertEqual(heights.bottom, 600 - (policy.hingeGutter / 2), accuracy: 0.001)
+        XCTAssertEqual(heights.top + heights.bottom + policy.hingeGutter, 900, accuracy: 0.001)
+    }
+
+    func testStackedPanesFallBackToEvenSplitWhenTheCreaseIsTooNearAnEdge() {
+        let policy = WorldClockLayoutPolicy()
+
+        // A crease 10 points below the content top cannot give both panes a
+        // usable height, so the panes are split evenly instead.
+        let heights = policy.stackedPaneHeights(contentHeight: 900, creaseOffset: 10)
+
+        XCTAssertEqual(heights.top, heights.bottom, accuracy: 0.001)
+        XCTAssertEqual(heights.top + heights.bottom + policy.hingeGutter, 900, accuracy: 0.001)
+    }
+
+    func testStackedPanesNeverReturnNegativeHeights() {
+        let policy = WorldClockLayoutPolicy()
+
+        let heights = policy.stackedPaneHeights(contentHeight: 100, creaseOffset: 400)
+
+        XCTAssertGreaterThanOrEqual(heights.top, 0)
+        XCTAssertGreaterThanOrEqual(heights.bottom, 0)
+    }
+
     func testHingeGutterIsPartOfThePolicy() {
         let policy = WorldClockLayoutPolicy()
 

@@ -222,23 +222,33 @@ capture_scenario() {
 
 # Captures one scenario from a specific iPhone Duo display.
 #
-# Only one Duo display renders at a time, so a flat capture means the device is
-# in the wrong posture; that frame is rejected rather than written as a blank.
+# The capture is written to a temporary file and validated before it replaces
+# anything, so a blank frame from the wrong posture cannot destroy an existing
+# screenshot. Only one Duo display renders at a time, which makes a blank frame
+# the expected failure whenever the device posture changes mid-run.
 capture_duo_scenario() {
   local udid="$1"
   local display_port="$2"
   local scenario="$3"
   local output_path="$4"
   local wait_seconds="$5"
+  local staged_path
 
   launch_scenario "$udid" "$scenario" "$wait_seconds"
+
+  staged_path="$(mktemp "${TMPDIR:-/tmp}/anytime-duo-capture.XXXXXX").png"
   xcrun simctl io "$udid" screenshot \
     --display "$display_port" \
     --type png \
     --mask black \
-    "$output_path" >/dev/null
+    "$staged_path" >/dev/null
 
-  assert_screenshot_not_blank "$output_path"
+  if png_is_flat_colour "$staged_path"; then
+    rm -f "$staged_path"
+    fail "$output_path would be a single flat colour, so the iPhone Duo display was not rendering. Check the device posture."
+  fi
+
+  mv "$staged_path" "$output_path"
 }
 
 capture_ios_device_set() {
@@ -289,18 +299,6 @@ for block in sys.stdin.read().split("Port:")[1:]:
 
 raise SystemExit(1)
 ' "$expected_width" "$expected_height"
-}
-
-# Fails when a screenshot is a single flat colour.
-#
-# A folded iPhone Duo display captures as solid black, which would otherwise be
-# uploaded as a valid looking but empty App Store screenshot.
-assert_screenshot_not_blank() {
-  local path="$1"
-
-  if png_is_flat_colour "$path"; then
-    fail "$path is a single flat colour, which means the iPhone Duo display was not rendering. Check that the device is in the posture you expect."
-  fi
 }
 
 capture_duo_device_set() {
@@ -389,12 +387,12 @@ duo_active_posture() {
   fi
 }
 
-# Succeeds when a PNG has the same pixels on every row but the first.
+# Succeeds when a PNG decodes to a single flat colour.
 #
-# Only the zlib stream is inspected: every scanline re-filters identically for a
-# flat image, and identical filtered rows decode to identical rows, so the full
-# filter reconstruction is unnecessary. A capture from a display that is not
-# rendering fails this immediately.
+# Scanline filters are reconstructed before comparing pixels: each scanline
+# chooses its own filter, so identical filtered bytes do not imply identical
+# pixels. Comparing raw filtered rows would let a flat image that alternates
+# filters slip through as "not flat".
 #
 # Handles the 8-bit truecolour and truecolour-alpha PNGs that `simctl` writes,
 # and reports "not flat" for any other layout so callers fall back safely.
@@ -441,17 +439,55 @@ if height < 2:
     raise SystemExit(0)
 
 channels = 4 if color_type == 6 else 3
-scanline = 1 + (width * channels)
+stride = width * channels
 raw = zlib.decompress(bytes(compressed))
 
-if len(raw) < scanline * height:
+if len(raw) < (stride + 1) * height:
     raise SystemExit(1)
 
-reference = raw[scanline:scanline * 2]
-for row in range(2, height):
-    start = scanline * row
-    if raw[start:start + scanline] != reference:
+previous = bytearray(stride)
+offset = 0
+first_pixel = None
+
+for _ in range(height):
+    filter_type = raw[offset]
+    offset += 1
+    line = bytearray(raw[offset:offset + stride])
+    offset += stride
+
+    # Undo the per-scanline filter to recover the real pixel values.
+    if filter_type == 1:
+        for i in range(channels, stride):
+            line[i] = (line[i] + line[i - channels]) & 0xFF
+    elif filter_type == 2:
+        for i in range(stride):
+            line[i] = (line[i] + previous[i]) & 0xFF
+    elif filter_type == 3:
+        for i in range(stride):
+            left = line[i - channels] if i >= channels else 0
+            line[i] = (line[i] + ((left + previous[i]) >> 1)) & 0xFF
+    elif filter_type == 4:
+        for i in range(stride):
+            left = line[i - channels] if i >= channels else 0
+            upper_left = previous[i - channels] if i >= channels else 0
+            upper = previous[i]
+            estimate = left + upper - upper_left
+            distances = (
+                abs(estimate - left),
+                abs(estimate - upper),
+                abs(estimate - upper_left),
+            )
+            predictor = (left, upper, upper_left)[distances.index(min(distances))]
+            line[i] = (line[i] + predictor) & 0xFF
+    elif filter_type != 0:
         raise SystemExit(1)
+
+    if first_pixel is None:
+        first_pixel = bytes(line)
+    elif bytes(line) != first_pixel:
+        raise SystemExit(1)
+
+    previous = line
 
 raise SystemExit(0)
 PY

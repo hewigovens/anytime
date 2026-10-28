@@ -14,6 +14,7 @@ struct WorldClockHomeView: View {
     @State private var showingPicker = false
     @State private var pullDownMonitor = PullDownMonitor()
     @State private var postureMonitor = DevicePostureMonitor()
+    @State private var headerHeight: CGFloat = 0
     @State private var didApplyScreenshotScenario = false
 
     private let layoutPolicy = WorldClockLayoutPolicy()
@@ -26,7 +27,10 @@ struct WorldClockHomeView: View {
 
                 VStack(spacing: 0) {
                     headerBlock(safeAreaTop: proxy.safeAreaInsets.top)
-                    contentArea(size: proxy.size)
+                        .onGeometryChange(for: CGFloat.self, of: \.size.height) { newHeight in
+                            headerHeight = newHeight
+                        }
+                    contentArea(size: proxy.size, headerHeight: headerHeight)
                 }
 
                 PullDownEasterEggView(monitor: pullDownMonitor)
@@ -192,12 +196,17 @@ struct WorldClockHomeView: View {
     }
 
     /// The content area for the current device posture and available size.
-    private func contentArea(size: CGSize) -> some View {
-        WorldClockLayoutViews(
+    private func contentArea(size: CGSize, headerHeight: CGFloat) -> some View {
+        // The crease sits at the middle of the display, but the content starts
+        // below the header, so the offset has to be measured from the content.
+        let creaseOffset = max(0, (size.height / 2) - headerHeight)
+
+        return WorldClockLayoutViews(
             store: store,
             layout: layoutPolicy.layout(posture: postureMonitor.posture, size: size),
             policy: layoutPolicy,
             size: size,
+            creaseOffset: creaseOffset,
             pullDownMonitor: pullDownMonitor,
             clockRows: { clockRows }
         )

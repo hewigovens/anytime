@@ -111,4 +111,30 @@ public struct WorldClockLayoutPolicy: Equatable, Sendable {
         let clockShareCeiling = contentWidth - columnSpacing - minimumClockColumnWidth
         return max(minimumCalculatorColumnWidth, min(maximumCalculatorColumnWidth, clockShareCeiling))
     }
+
+    /// Pane heights for a stacked hinge, centred on the physical crease.
+    ///
+    /// The content area does not start at the top of the display — the header
+    /// sits above it — so splitting the content evenly would put the gutter
+    /// above the crease and let a pane cross the fold. `creaseOffset` is the
+    /// distance from the top of the content area down to the crease, which
+    /// centres the gutter on the fold instead.
+    ///
+    /// Falls back to an even split when the crease leaves either pane too short
+    /// to be useful.
+    public func stackedPaneHeights(
+        contentHeight: CGFloat,
+        creaseOffset: CGFloat,
+        minimumPaneHeight: CGFloat = 180
+    ) -> (top: CGFloat, bottom: CGFloat) {
+        let top = creaseOffset - (hingeGutter / 2)
+        let bottom = contentHeight - creaseOffset - (hingeGutter / 2)
+
+        guard top >= minimumPaneHeight, bottom >= minimumPaneHeight else {
+            let paneHeight = max(0, (contentHeight - hingeGutter) / 2)
+            return (top: paneHeight, bottom: paneHeight)
+        }
+
+        return (top: top, bottom: bottom)
+    }
 }

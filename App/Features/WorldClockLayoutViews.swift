@@ -10,6 +10,8 @@ struct WorldClockLayoutViews<ClockRows: View>: View {
     let layout: WorldClockLayout
     let policy: WorldClockLayoutPolicy
     let size: CGSize
+    /// Distance from the top of the content area down to the device crease.
+    let creaseOffset: CGFloat
     let pullDownMonitor: PullDownMonitor
     @ViewBuilder let clockRows: () -> ClockRows
 
@@ -65,14 +67,19 @@ struct WorldClockLayoutViews<ClockRows: View>: View {
     private func hinged(split: WorldClockHingeSplit) -> some View {
         switch split {
         case .stacked:
+            let heights = policy.stackedPaneHeights(
+                contentHeight: size.height,
+                creaseOffset: creaseOffset
+            )
+
             VStack(spacing: 0) {
                 calculatorPane
-                    .frame(maxHeight: .infinity)
+                    .frame(height: heights.top)
 
                 gutter(height: policy.hingeGutter)
 
                 clockListPane
-                    .frame(maxHeight: .infinity)
+                    .frame(height: heights.bottom)
             }
             .padding(.horizontal, policy.horizontalInset)
         case .sideBySide:
