@@ -66,3 +66,14 @@ app-store-screenshots ios_loc="" mac_loc="":
 
 capture-app-store-screenshots-ios ios_loc="":
     {{screenshot_script}} capture-upload-ios {{ios_loc}}
+
+capture-duo-screenshots:
+    {{screenshot_script}} capture-duo
+
+capture-posture-duo posture="":
+    xcodegen generate
+    set -o pipefail
+    xcodebuild -scheme {{scheme}} -project {{project}} -destination 'platform=iOS Simulator,name=iPhone Duo' -derivedDataPath build/duo build | { command -v xcbeautify >/dev/null && xcbeautify || cat; }
+    xcrun simctl boot "iPhone Duo" 2>/dev/null || true
+    xcrun simctl install "iPhone Duo" build/duo/Build/Products/Debug-iphonesimulator/AnyTime.app
+    {{ if posture == "" { "xcrun simctl launch \"iPhone Duo\" in.fourplex.anytime" } else { "env SIMCTL_CHILD_ANYTIME_POSTURE_OVERRIDE=" + posture + " xcrun simctl launch \"iPhone Duo\" in.fourplex.anytime" } }}

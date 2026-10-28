@@ -13,7 +13,11 @@ struct WorldClockHomeView: View {
     @State private var eventTitle = ""
     @State private var showingPicker = false
     @State private var pullDownMonitor = PullDownMonitor()
+    @State private var postureMonitor = DevicePostureMonitor()
+    @State private var headerHeight: CGFloat = 0
     @State private var didApplyScreenshotScenario = false
+
+    private let layoutPolicy = WorldClockLayoutPolicy()
 
     var body: some View {
         GeometryReader { proxy in
@@ -23,13 +27,19 @@ struct WorldClockHomeView: View {
 
                 VStack(spacing: 0) {
                     headerBlock(safeAreaTop: proxy.safeAreaInsets.top)
-                    contentList
+                        .onGeometryChange(for: CGFloat.self, of: \.size.height) { newHeight in
+                            headerHeight = newHeight
+                        }
+                    contentArea(displaySize: proxy.size, headerHeight: headerHeight)
                 }
 
                 PullDownEasterEggView(monitor: pullDownMonitor)
                     .zIndex(1)
             }
             .ignoresSafeArea(edges: .top)
+            .overlay(alignment: .topLeading) {
+                postureReader
+            }
         }
         #if os(iOS)
         .toolbar(.hidden, for: .navigationBar)
@@ -176,39 +186,36 @@ struct WorldClockHomeView: View {
     }
 
     @ViewBuilder
-    private var contentList: some View {
-        let list = List {
-            Section {
-                ReferenceCalculatorCard(store: store)
-                    .listRowInsets(EdgeInsets(top: 10, leading: 16, bottom: 10, trailing: 16))
-                    .listRowBackground(Color.clear)
-                    .listRowSeparator(.hidden)
-            }
+    private var postureReader: some View {
+        #if os(iOS)
+        HingePostureReader(monitor: postureMonitor)
+            .frame(width: 0, height: 0)
+            .accessibilityHidden(true)
+        #endif
+    }
 
-            Section {
-                ForEach(store.displayedPresentations) { presentation in
-                    clockRow(for: presentation)
-                }
-                .onMove(perform: store.moveDisplayedTimeZones)
-            }
-        }
-        .listStyle(.plain)
-        .scrollContentBackground(.hidden)
-        .background(Color.clear)
+    private func contentArea(displaySize: CGSize, headerHeight: CGFloat) -> some View {
+        let contentHeight = max(0, displaySize.height - headerHeight)
+        let contentSize = CGSize(width: displaySize.width, height: contentHeight)
+        let creaseOffset = max(0, (displaySize.height / 2) - headerHeight)
 
-        if #available(iOS 18.0, macOS 15.0, *) {
-            list.onScrollGeometryChange(for: CGFloat.self, of: { geometry in
-                geometry.contentOffset.y + geometry.contentInsets.top
-            }, action: { _, newValue in
-                pullDownMonitor.contentOffset = newValue
-            })
-        } else {
-            list.background {
-                ScrollViewOffsetObserver { offset in
-                    pullDownMonitor.contentOffset = offset
-                }
-            }
+        return WorldClockLayoutViews(
+            store: store,
+            layout: layoutPolicy.layout(posture: postureMonitor.posture, size: contentSize),
+            policy: layoutPolicy,
+            size: contentSize,
+            creaseOffset: creaseOffset,
+            pullDownMonitor: pullDownMonitor,
+            clockRows: { clockRows }
+        )
+    }
+
+    @ViewBuilder
+    private var clockRows: some View {
+        ForEach(store.displayedPresentations) { presentation in
+            clockRow(for: presentation)
         }
+        .onMove(perform: store.moveDisplayedTimeZones)
     }
 
     private func clockRow(for presentation: ClockPresentation) -> some View {
