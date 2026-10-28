@@ -32,6 +32,8 @@ app_path=""
 
 configure_upload() {
   require_command asc
+  # The pre-upload blank frame check decodes PNGs with Python.
+  require_png_decoder
 }
 
 configure_capture() {
@@ -39,6 +41,7 @@ configure_capture() {
   require_command xcodebuild
   require_command xcodegen
   require_command xcrun
+  require_png_decoder
 
   ios_runtime="$(resolve_ios_runtime)"
 
@@ -243,9 +246,12 @@ capture_duo_scenario() {
     --mask black \
     "$staged_path" >/dev/null
 
-  if png_is_flat_colour "$staged_path"; then
+  # Only a cleanly decoded, varied frame replaces the destination. A flat frame
+  # means the display was not rendering, and an undecodable one means the check
+  # itself could not run; neither should overwrite an existing screenshot.
+  if [[ "$(png_flatness "$staged_path")" != "varied" ]]; then
     rm -f "$staged_path"
-    fail "$output_path would be a single flat colour, so the iPhone Duo display was not rendering. Check the device posture."
+    fail "$output_path did not capture a rendered frame. Check the device posture and that python3 is available."
   fi
 
   mv "$staged_path" "$output_path"
@@ -364,6 +370,7 @@ duo_active_posture() {
   local outer_port="$3"
   local probe_dir
   local probe_status=0
+  local inner_result outer_result
 
   probe_dir="$(mktemp -d)"
   trap 'rm -rf "$probe_dir"' RETURN
@@ -378,25 +385,31 @@ duo_active_posture() {
     return 0
   fi
 
-  if png_is_flat_colour "$probe_dir/outer.png" && ! png_is_flat_colour "$probe_dir/inner.png"; then
+  # An undecodable probe proves nothing about which display is rendering, so it
+  # reports "unknown" instead of being read as "not flat".
+  inner_result="$(png_flatness "$probe_dir/inner.png")"
+  outer_result="$(png_flatness "$probe_dir/outer.png")"
+
+  if [[ "$outer_result" == "flat" && "$inner_result" == "varied" ]]; then
     printf '%s\n' "unfolded"
-  elif png_is_flat_colour "$probe_dir/inner.png" && ! png_is_flat_colour "$probe_dir/outer.png"; then
+  elif [[ "$inner_result" == "flat" && "$outer_result" == "varied" ]]; then
     printf '%s\n' "folded"
   else
     printf '%s\n' "unknown"
   fi
 }
 
-# Succeeds when a PNG decodes to a single flat colour.
+# Reports whether a PNG decodes to a single flat colour.
+#
+# Prints one of `flat`, `varied`, or `undecodable`. The distinct `undecodable`
+# result matters: a missing decoder or unreadable file must never be mistaken
+# for "the image is fine", which would let a blank screenshot reach the upload.
 #
 # Scanline filters are reconstructed before comparing pixels: each scanline
 # chooses its own filter, so identical filtered bytes do not imply identical
 # pixels. Comparing raw filtered rows would let a flat image that alternates
-# filters slip through as "not flat".
-#
-# Handles the 8-bit truecolour and truecolour-alpha PNGs that `simctl` writes,
-# and reports "not flat" for any other layout so callers fall back safely.
-png_is_flat_colour() {
+# filters slip through as varied.
+png_flatness() {
   local path="$1"
 
   python3 - "$path" <<'PY'
@@ -406,44 +419,64 @@ import zlib
 
 path = sys.argv[1]
 
-with open(path, "rb") as handle:
-    data = handle.read()
+try:
+    with open(path, "rb") as handle:
+        data = handle.read()
+except OSError:
+    print("undecodable")
+    raise SystemExit(0)
 
 if not data.startswith(b"\x89PNG\r\n\x1a\n"):
-    raise SystemExit(1)
+    print("undecodable")
+    raise SystemExit(0)
 
 index = 8
 header = None
 compressed = bytearray()
 
-while index < len(data):
-    length, chunk_type = struct.unpack(">I4s", data[index:index + 8])
-    body = data[index + 8:index + 8 + length]
-    index += 12 + length
+try:
+    while index < len(data):
+        length, chunk_type = struct.unpack(">I4s", data[index:index + 8])
+        body = data[index + 8:index + 8 + length]
+        index += 12 + length
 
-    if chunk_type == b"IHDR":
-        header = struct.unpack(">IIBBBBB", body)
-    elif chunk_type == b"IDAT":
-        compressed.extend(body)
-    elif chunk_type == b"IEND":
-        break
+        if chunk_type == b"IHDR":
+            header = struct.unpack(">IIBBBBB", body)
+        elif chunk_type == b"IDAT":
+            compressed.extend(body)
+        elif chunk_type == b"IEND":
+            break
+except struct.error:
+    print("undecodable")
+    raise SystemExit(0)
 
 if header is None:
-    raise SystemExit(1)
+    print("undecodable")
+    raise SystemExit(0)
 
 width, height, bit_depth, color_type, _, _, interlace = header
 if bit_depth != 8 or interlace != 0 or color_type not in (2, 6):
-    raise SystemExit(1)
+    # Layouts this decoder does not handle are reported as undecodable so the
+    # caller can decide, rather than being assumed flat or varied.
+    print("undecodable")
+    raise SystemExit(0)
 
 if height < 2:
+    print("flat")
     raise SystemExit(0)
 
 channels = 4 if color_type == 6 else 3
 stride = width * channels
-raw = zlib.decompress(bytes(compressed))
+
+try:
+    raw = zlib.decompress(bytes(compressed))
+except zlib.error:
+    print("undecodable")
+    raise SystemExit(0)
 
 if len(raw) < (stride + 1) * height:
-    raise SystemExit(1)
+    print("undecodable")
+    raise SystemExit(0)
 
 previous = bytearray(stride)
 offset = 0
@@ -480,18 +513,73 @@ for _ in range(height):
             predictor = (left, upper, upper_left)[distances.index(min(distances))]
             line[i] = (line[i] + predictor) & 0xFF
     elif filter_type != 0:
-        raise SystemExit(1)
+        print("undecodable")
+        raise SystemExit(0)
 
     if first_pixel is None:
         first_pixel = bytes(line)
     elif bytes(line) != first_pixel:
-        raise SystemExit(1)
+        print("varied")
+        raise SystemExit(0)
 
     previous = line
 
-raise SystemExit(0)
+print("flat")
 PY
 }
+
+# Fails unless the PNG decoder is present and working.
+#
+# `png_flatness` needs python3. Without it the decoder cannot run at all, and a
+# silent failure would let blank screenshots through every check that depends
+# on it, so this is verified before any validation or capture work.
+require_png_decoder() {
+  require_command python3
+
+  local probe_dir probe_path result
+  probe_dir="$(mktemp -d)"
+  probe_path="$probe_dir/probe.png"
+
+  # A decoder that cannot classify even a known-flat PNG cannot be trusted.
+  python3 - "$probe_path" <<'PY'
+import struct
+import sys
+import zlib
+
+path = sys.argv[1]
+width, height, channels = 4, 4, 4
+stride = width * channels
+raw = b"".join(b"\x00" + (b"\x00" * stride) for _ in range(height))
+
+
+def chunk(kind, body):
+    return (
+        struct.pack(">I", len(body))
+        + kind
+        + body
+        + struct.pack(">I", zlib.crc32(kind + body) & 0xFFFFFFFF)
+    )
+
+
+png = (
+    b"\x89PNG\r\n\x1a\n"
+    + chunk(b"IHDR", struct.pack(">IIBBBBB", width, height, 8, 6, 0, 0, 0))
+    + chunk(b"IDAT", zlib.compress(raw))
+    + chunk(b"IEND", b"")
+)
+
+with open(path, "wb") as handle:
+    handle.write(png)
+PY
+
+  result="$(png_flatness "$probe_path")"
+  rm -rf "$probe_dir"
+
+  if [[ "$result" != "flat" ]]; then
+    fail "PNG validation is unavailable: expected 'flat' from a known-flat probe but got '${result}'"
+  fi
+}
+
 
 require_screenshot_dir() {
   local path="$1"
@@ -506,27 +594,28 @@ require_screenshot_dir() {
   fi
 }
 
-# Fails when a directory still holds a flat-colour capture.
+# Fails when a directory holds a capture that is not a rendered frame.
 #
-# Only one iPhone Duo display renders at a time, so a leftover capture from the
-# other posture is a blank frame. Catching it here stops a blank screenshot from
-# replacing a good one on the App Store.
+# Fails on flat frames and on frames that cannot be decoded, because neither is
+# safe to upload and a silent decode failure must not pass as "not blank".
 require_rendered_screenshots() {
   local path="$1"
   local label="$2"
   local file
-  local blanks=()
+  local result
+  local bad=()
 
   while IFS= read -r -d '' file; do
-    if png_is_flat_colour "$file"; then
-      blanks+=("$file")
+    result="$(png_flatness "$file")"
+    if [[ "$result" != "varied" ]]; then
+      bad+=("$file ($result)")
     fi
   done < <(find "$path" -maxdepth 1 -type f -name '*.png' -print0)
 
-  if [[ ${#blanks[@]} -gt 0 ]]; then
-    printf '%s\n' "$label has ${#blanks[@]} blank screenshot(s):" >&2
-    printf '  %s\n' "${blanks[@]}" >&2
-    fail "$label screenshots contain blank frames. Re-capture them in the matching device posture."
+  if [[ ${#bad[@]} -gt 0 ]]; then
+    printf '%s\n' "$label has ${#bad[@]} unusable screenshot(s):" >&2
+    printf '  %s\n' "${bad[@]}" >&2
+    fail "$label screenshots are not usable. Re-capture them in the matching device posture."
   fi
 }
 
