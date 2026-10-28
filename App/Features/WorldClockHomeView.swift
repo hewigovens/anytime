@@ -13,7 +13,10 @@ struct WorldClockHomeView: View {
     @State private var eventTitle = ""
     @State private var showingPicker = false
     @State private var pullDownMonitor = PullDownMonitor()
+    @State private var postureMonitor = DevicePostureMonitor()
     @State private var didApplyScreenshotScenario = false
+
+    private let layoutPolicy = WorldClockLayoutPolicy()
 
     var body: some View {
         GeometryReader { proxy in
@@ -23,13 +26,16 @@ struct WorldClockHomeView: View {
 
                 VStack(spacing: 0) {
                     headerBlock(safeAreaTop: proxy.safeAreaInsets.top)
-                    contentList
+                    contentArea(size: proxy.size)
                 }
 
                 PullDownEasterEggView(monitor: pullDownMonitor)
                     .zIndex(1)
             }
             .ignoresSafeArea(edges: .top)
+            .overlay(alignment: .topLeading) {
+                postureReader
+            }
         }
         #if os(iOS)
         .toolbar(.hidden, for: .navigationBar)
@@ -175,40 +181,34 @@ struct WorldClockHomeView: View {
             .background(AppTheme.headerSurface)
     }
 
+    /// A zero-sized bridge that keeps the posture monitor in sync with the hinge.
     @ViewBuilder
-    private var contentList: some View {
-        let list = List {
-            Section {
-                ReferenceCalculatorCard(store: store)
-                    .listRowInsets(EdgeInsets(top: 10, leading: 16, bottom: 10, trailing: 16))
-                    .listRowBackground(Color.clear)
-                    .listRowSeparator(.hidden)
-            }
+    private var postureReader: some View {
+        #if os(iOS)
+        HingePostureReader(monitor: postureMonitor)
+            .frame(width: 0, height: 0)
+            .accessibilityHidden(true)
+        #endif
+    }
 
-            Section {
-                ForEach(store.displayedPresentations) { presentation in
-                    clockRow(for: presentation)
-                }
-                .onMove(perform: store.moveDisplayedTimeZones)
-            }
-        }
-        .listStyle(.plain)
-        .scrollContentBackground(.hidden)
-        .background(Color.clear)
+    /// The content area for the current device posture and available size.
+    private func contentArea(size: CGSize) -> some View {
+        WorldClockLayoutViews(
+            store: store,
+            layout: layoutPolicy.layout(posture: postureMonitor.posture, size: size),
+            policy: layoutPolicy,
+            size: size,
+            pullDownMonitor: pullDownMonitor,
+            clockRows: { clockRows }
+        )
+    }
 
-        if #available(iOS 18.0, macOS 15.0, *) {
-            list.onScrollGeometryChange(for: CGFloat.self, of: { geometry in
-                geometry.contentOffset.y + geometry.contentInsets.top
-            }, action: { _, newValue in
-                pullDownMonitor.contentOffset = newValue
-            })
-        } else {
-            list.background {
-                ScrollViewOffsetObserver { offset in
-                    pullDownMonitor.contentOffset = offset
-                }
-            }
+    @ViewBuilder
+    private var clockRows: some View {
+        ForEach(store.displayedPresentations) { presentation in
+            clockRow(for: presentation)
         }
+        .onMove(perform: store.moveDisplayedTimeZones)
     }
 
     private func clockRow(for presentation: ClockPresentation) -> some View {

@@ -48,6 +48,7 @@ just testflight
 just testflight-macos
 just app-store-screenshots
 just capture-app-store-screenshots-ios
+just capture-duo-screenshots
 ```
 
 Notes:
@@ -95,6 +96,29 @@ Notes:
 just app-store-screenshots IOS_VERSION_LOCALIZATION_ID MAC_VERSION_LOCALIZATION_ID
 just capture-app-store-screenshots-ios IOS_VERSION_LOCALIZATION_ID
 ```
+
+### iPhone Duo screenshots
+
+Capture and upload the iPhone Duo set with:
+
+```bash
+just capture-duo-screenshots
+```
+
+Or drive the script directly:
+
+```bash
+scripts/app_store_screenshots.sh capture-duo
+scripts/app_store_screenshots.sh upload-duo IOS_VERSION_LOCALIZATION_ID
+```
+
+Notes:
+
+- The set is stored in `screenshots/ios/duo/` and uploaded as `APP_IPHONE_DUO`, which accepts the outer display at 1398 × 2034 and the inner display at 2007 × 2853.
+- Only one display renders at a time. Run the command once while the device is folded to capture the outer display (`01`–`04`), and again while it is unfolded to capture the inner display (`05`–`08`). Each run keeps the other display's captures, so the two runs together build the full set.
+- A freshly booted simulator starts folded. Unfold it in Device Hub to capture the inner display.
+- Captures are validated by decoding the PNG: a flat-colour frame means the device was in the wrong posture, and that frame is rejected instead of being written as a blank screenshot. The same check runs before upload.
+- Duo screenshots become required for apps built with the iOS 27.1 SDK starting April 2027.
 
 ## CI
 
