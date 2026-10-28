@@ -30,7 +30,7 @@ struct WorldClockHomeView: View {
                         .onGeometryChange(for: CGFloat.self, of: \.size.height) { newHeight in
                             headerHeight = newHeight
                         }
-                    contentArea(size: proxy.size, headerHeight: headerHeight)
+                    contentArea(displaySize: proxy.size, headerHeight: headerHeight)
                 }
 
                 PullDownEasterEggView(monitor: pullDownMonitor)
@@ -196,16 +196,23 @@ struct WorldClockHomeView: View {
     }
 
     /// The content area for the current device posture and available size.
-    private func contentArea(size: CGSize, headerHeight: CGFloat) -> some View {
-        // The crease sits at the middle of the display, but the content starts
-        // below the header, so the offset has to be measured from the content.
-        let creaseOffset = max(0, (size.height / 2) - headerHeight)
+    ///
+    /// The layout is chosen from the display size, while the stacked panes are
+    /// sized from the height actually left below the header. Those are different
+    /// numbers: passing the display height as the content height makes the panes
+    /// and gutter overflow by exactly the header's height.
+    private func contentArea(displaySize: CGSize, headerHeight: CGFloat) -> some View {
+        let contentHeight = max(0, displaySize.height - headerHeight)
+        let contentSize = CGSize(width: displaySize.width, height: contentHeight)
+        // The crease runs through the middle of the display, measured from the
+        // top of the content area.
+        let creaseOffset = max(0, (displaySize.height / 2) - headerHeight)
 
         return WorldClockLayoutViews(
             store: store,
-            layout: layoutPolicy.layout(posture: postureMonitor.posture, size: size),
+            layout: layoutPolicy.layout(posture: postureMonitor.posture, size: contentSize),
             policy: layoutPolicy,
-            size: size,
+            size: contentSize,
             creaseOffset: creaseOffset,
             pullDownMonitor: pullDownMonitor,
             clockRows: { clockRows }

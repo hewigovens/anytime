@@ -88,6 +88,26 @@ final class WorldClockLayoutTests: XCTestCase {
         XCTAssertEqual(layout, .hinged(.sideBySide))
     }
 
+    func testStackedPanesFillTheContentHeightExactly() {
+        let policy = WorldClockLayoutPolicy()
+
+        // Regression: the caller used to pass the display height as the content
+        // height, so the panes plus gutter overflowed by the header's height and
+        // pushed into the bottom toolbar.
+        let contentHeight: CGFloat = 900
+        let creaseOffset: CGFloat = (1000 / 2) - 100
+        let heights = policy.stackedPaneHeights(
+            contentHeight: contentHeight,
+            creaseOffset: creaseOffset
+        )
+
+        XCTAssertEqual(
+            heights.top + heights.bottom + policy.hingeGutter,
+            contentHeight,
+            accuracy: 0.001
+        )
+    }
+
     func testStackedPanesCentreTheGutterOnTheCrease() {
         let policy = WorldClockLayoutPolicy()
 
