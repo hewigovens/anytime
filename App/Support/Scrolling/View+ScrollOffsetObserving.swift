@@ -1,8 +1,6 @@
 import SwiftUI
 
 extension View {
-    /// Feeds a `List`'s vertical scroll offset into a ``PullDownMonitor``.
-    ///
     /// Uses `onScrollGeometryChange` where it is available and falls back to the
     /// platform scroll view observer on older systems.
     @ViewBuilder

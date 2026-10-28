@@ -187,10 +187,8 @@ install_app() {
   xcrun simctl install "$udid" "$app_path" >/dev/null
 }
 
-# Launches the app for one screenshot scenario and waits for it to settle.
-#
-# Shared by every device set; callers capture the display afterwards because the
-# iPhone Duo needs to pick a specific framebuffer.
+# Callers capture the display afterwards because the iPhone Duo needs to pick a
+# specific framebuffer.
 launch_scenario() {
   local udid="$1"
   local scenario="$2"
@@ -223,12 +221,8 @@ capture_scenario() {
   xcrun simctl io "$udid" screenshot "$output_path" >/dev/null
 }
 
-# Captures one scenario from a specific iPhone Duo display.
-#
-# The capture is written to a temporary file and validated before it replaces
-# anything, so a blank frame from the wrong posture cannot destroy an existing
-# screenshot. Only one Duo display renders at a time, which makes a blank frame
-# the expected failure whenever the device posture changes mid-run.
+# The capture is staged in a temporary file because a blank frame from the wrong
+# posture must not destroy an existing screenshot.
 capture_duo_scenario() {
   local udid="$1"
   local display_port="$2"
@@ -246,9 +240,8 @@ capture_duo_scenario() {
     --mask black \
     "$staged_path" >/dev/null
 
-  # Only a cleanly decoded, varied frame replaces the destination. A flat frame
-  # means the display was not rendering, and an undecodable one means the check
-  # itself could not run; neither should overwrite an existing screenshot.
+  # Only a varied frame replaces the destination: flat means the display was not
+  # rendering, and undecodable means the check could not run.
   if [[ "$(png_flatness "$staged_path")" != "varied" ]]; then
     rm -f "$staged_path"
     fail "$output_path did not capture a rendered frame. Check the device posture and that python3 is available."
@@ -273,10 +266,8 @@ capture_ios_device_set() {
   done
 }
 
-# Finds the port UUID of the framebuffer whose native mode matches a size.
-#
-# iPhone Duo exposes two internal displays, and their port UUIDs are assigned
-# fresh on every boot, so the display is located by its pixel size instead.
+# Duo display port UUIDs are reassigned on every boot, so the display is located
+# by its pixel size instead.
 duo_display_port() {
   local udid="$1"
   local expected_width="$2"
@@ -323,8 +314,8 @@ capture_duo_device_set() {
   fi
 
   # Only one display is live at a time: unfolding lights up the inner display and
-  # blanks the outer one, and folding it does the reverse. Capture whichever one
-  # is rendering so a run never overwrites the other posture's good captures.
+  # blanks the outer one, and folding does the reverse. Capturing only the live
+  # display keeps the other posture's captures intact.
   active_posture="$(duo_active_posture "$udid" "$inner_port" "$outer_port")"
 
   case "$active_posture" in
@@ -359,11 +350,9 @@ capture_duo_device_set() {
   done
 }
 
-# Reports whether the device is currently "folded" or "unfolded".
-#
 # Both framebuffers exist in either posture, so the posture is inferred from
-# which one is actually rendering: the active display has varied pixels while
-# the inactive one captures as a single flat colour.
+# which one is rendering: the active display has varied pixels while the inactive
+# one captures as a single flat colour.
 duo_active_posture() {
   local udid="$1"
   local inner_port="$2"
@@ -385,8 +374,8 @@ duo_active_posture() {
     return 0
   fi
 
-  # An undecodable probe proves nothing about which display is rendering, so it
-  # reports "unknown" instead of being read as "not flat".
+  # An undecodable probe proves nothing about which display is rendering, so
+  # report "unknown" rather than reading it as "not flat".
   inner_result="$(png_flatness "$probe_dir/inner.png")"
   outer_result="$(png_flatness "$probe_dir/outer.png")"
 
@@ -399,16 +388,13 @@ duo_active_posture() {
   fi
 }
 
-# Reports whether a PNG decodes to a single flat colour.
+# Prints one of `flat`, `varied`, or `undecodable`. `undecodable` must not be
+# treated as "flat" or "fine": a missing decoder or unreadable file would
+# otherwise let a blank screenshot reach the upload.
 #
-# Prints one of `flat`, `varied`, or `undecodable`. The distinct `undecodable`
-# result matters: a missing decoder or unreadable file must never be mistaken
-# for "the image is fine", which would let a blank screenshot reach the upload.
-#
-# Scanline filters are reconstructed before comparing pixels: each scanline
-# chooses its own filter, so identical filtered bytes do not imply identical
-# pixels. Comparing raw filtered rows would let a flat image that alternates
-# filters slip through as varied.
+# Scanline filters are reconstructed before comparing pixels, because each
+# scanline picks its own filter; identical filtered bytes do not imply identical
+# pixels.
 png_flatness() {
   local path="$1"
 
@@ -456,8 +442,6 @@ if header is None:
 
 width, height, bit_depth, color_type, _, _, interlace = header
 if bit_depth != 8 or interlace != 0 or color_type not in (2, 6):
-    # Layouts this decoder does not handle are reported as undecodable so the
-    # caller can decide, rather than being assumed flat or varied.
     print("undecodable")
     raise SystemExit(0)
 
@@ -488,7 +472,7 @@ for _ in range(height):
     line = bytearray(raw[offset:offset + stride])
     offset += stride
 
-    # Undo the per-scanline filter to recover the real pixel values.
+    # Undo the per-scanline filter to recover pixel values.
     if filter_type == 1:
         for i in range(channels, stride):
             line[i] = (line[i] + line[i - channels]) & 0xFF
@@ -528,11 +512,8 @@ print("flat")
 PY
 }
 
-# Fails unless the PNG decoder is present and working.
-#
-# `png_flatness` needs python3. Without it the decoder cannot run at all, and a
-# silent failure would let blank screenshots through every check that depends
-# on it, so this is verified before any validation or capture work.
+# Verifies the decoder against a known-flat PNG. Without a working decoder every
+# blank check would silently pass.
 require_png_decoder() {
   require_command python3
 
@@ -594,10 +575,8 @@ require_screenshot_dir() {
   fi
 }
 
-# Fails when a directory holds a capture that is not a rendered frame.
-#
-# Fails on flat frames and on frames that cannot be decoded, because neither is
-# safe to upload and a silent decode failure must not pass as "not blank".
+# Fails on flat frames and on frames that cannot be decoded: neither is safe to
+# upload, and a silent decode failure must not pass as "not blank".
 require_rendered_screenshots() {
   local path="$1"
   local label="$2"
@@ -677,8 +656,8 @@ upload_duo() {
   require_screenshot_dir "$duo_output_path" "iPhone Duo"
   require_rendered_screenshots "$duo_output_path" "iPhone Duo"
 
-  # APP_IPHONE_DUO accepts both displays, so the outer and inner captures share
-  # one set: 1398x2034 (outer) and 2007x2853 (inner).
+  # APP_IPHONE_DUO accepts both displays, so outer and inner captures share one
+  # set: 1398x2034 (outer) and 2007x2853 (inner).
   delete_display_type_screenshots "$localization_id" APP_IPHONE_DUO
 
   log "Uploading iPhone Duo screenshots..."

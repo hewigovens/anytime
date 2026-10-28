@@ -1,14 +1,8 @@
 import AnyTimeCore
 import SwiftUI
 
-#if canImport(UIKit)
-import UIKit
-#endif
-
-/// Publishes the device's hinge posture so the home screen can pick a layout.
-///
 /// `UIHingeInteraction` only reports through an interaction attached to a view,
-/// so this model is driven by ``HingePostureReader``.
+/// so the monitor is driven by ``HingePostureReader``.
 @MainActor
 @Observable
 final class DevicePostureMonitor {
@@ -30,13 +24,9 @@ final class DevicePostureMonitor {
 }
 
 #if canImport(UIKit)
+import UIKit
 
 /// Reports hinge changes from the view hierarchy to a ``DevicePostureMonitor``.
-///
-/// The hinge API ships in the iOS 27.1 SDK, which is Xcode 27.1 or later. Older
-/// SDKs cannot see `UIHinge` at all — `@available` only guards the runtime, not
-/// the type's existence — so the reader degrades to a plain view there and the
-/// layout falls back to the size-driven policy.
 struct HingePostureReader: UIViewRepresentable {
     let monitor: DevicePostureMonitor
 
@@ -51,7 +41,7 @@ struct HingePostureReader: UIViewRepresentable {
     }
 }
 
-/// A view that owns a hinge interaction for its lifetime.
+/// Owns a hinge interaction for the view's lifetime.
 final class HingeObservingView: UIView {
     weak var monitor: DevicePostureMonitor?
 
@@ -71,7 +61,7 @@ final class HingeObservingView: UIView {
         super.didMoveToWindow()
 
         // Outside a window no further updates arrive, so drop a stale posture
-        // instead of leaving the last one pinned.
+        // rather than leaving the last one pinned.
         if window == nil {
             monitor?.update(.unavailable)
         }
@@ -79,8 +69,9 @@ final class HingeObservingView: UIView {
 
     private func installHingeInteraction() {
         #if compiler(>=6.4)
-        // Xcode 27.1 and later: the SDK provides the hinge API. The runtime
-        // check still matters, because the app also runs on iOS 17 and later.
+        // `compiler` gates the API's existence because SDKs before Xcode 27.1 do
+        // not declare UIHinge at all, and `@available` alone only guards the
+        // runtime, not whether the type compiles.
         guard #available(iOS 27.1, *) else {
             return
         }

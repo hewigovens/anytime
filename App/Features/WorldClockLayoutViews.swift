@@ -1,8 +1,6 @@
 import AnyTimeCore
 import SwiftUI
 
-/// Renders the home screen content for a chosen ``WorldClockLayout``.
-///
 /// The clock rows are supplied by the caller because they carry the home
 /// screen's selection and calendar state.
 struct WorldClockLayoutViews<ClockRows: View>: View {
@@ -10,7 +8,6 @@ struct WorldClockLayoutViews<ClockRows: View>: View {
     let layout: WorldClockLayout
     let policy: WorldClockLayoutPolicy
     let size: CGSize
-    /// Distance from the top of the content area down to the device crease.
     let creaseOffset: CGFloat
     let pullDownMonitor: PullDownMonitor
     @ViewBuilder let clockRows: () -> ClockRows
@@ -26,7 +23,6 @@ struct WorldClockLayoutViews<ClockRows: View>: View {
         }
     }
 
-    /// The reference calculator and clocks in one scrolling column.
     private var singleColumn: some View {
         let list = List {
             Section {
@@ -44,8 +40,6 @@ struct WorldClockLayoutViews<ClockRows: View>: View {
         return list.listChrome().observeScrollOffset(into: pullDownMonitor)
     }
 
-    /// The reference calculator and the clock list side by side.
-    ///
     /// The calculator column stays put while the clock list scrolls, so nudging
     /// the reference time updates the clocks without scrolling away from them.
     private var twoColumn: some View {
@@ -59,10 +53,6 @@ struct WorldClockLayoutViews<ClockRows: View>: View {
         .padding(.horizontal, policy.horizontalInset)
     }
 
-    /// The content split across a half-folded device's hinge.
-    ///
-    /// The calculator sits in one pane and the clocks in the other, with a
-    /// gutter so neither pane is hidden by the crease.
     @ViewBuilder
     private func hinged(split: WorldClockHingeSplit) -> some View {
         switch split {
@@ -115,7 +105,6 @@ struct WorldClockLayoutViews<ClockRows: View>: View {
         return list.listChrome().observeScrollOffset(into: pullDownMonitor)
     }
 
-    /// An invisible spacer standing in for the crease of a folded display.
     private func gutter(height: CGFloat = 0, width: CGFloat = 0) -> some View {
         Color.clear
             .frame(height: height)
@@ -125,7 +114,6 @@ struct WorldClockLayoutViews<ClockRows: View>: View {
 }
 
 private extension List {
-    /// Applies the transparent list styling shared by every layout.
     func listChrome() -> some View {
         listStyle(.plain)
             .scrollContentBackground(.hidden)

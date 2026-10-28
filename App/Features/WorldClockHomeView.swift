@@ -195,12 +195,10 @@ struct WorldClockHomeView: View {
         #endif
     }
 
-    /// The content area for the current device posture and available size.
-    ///
     /// The layout is chosen from the display size, while the stacked panes are
-    /// sized from the height actually left below the header. Those are different
-    /// numbers: passing the display height as the content height makes the panes
-    /// and gutter overflow by exactly the header's height.
+    /// sized from the height left below the header. Passing the display height as
+    /// the content height makes the panes and gutter overflow by the header's
+    /// height.
     private func contentArea(displaySize: CGSize, headerHeight: CGFloat) -> some View {
         let contentHeight = max(0, displaySize.height - headerHeight)
         let contentSize = CGSize(width: displaySize.width, height: contentHeight)

@@ -91,9 +91,8 @@ final class WorldClockLayoutTests: XCTestCase {
     func testStackedPanesFillTheContentHeightExactly() {
         let policy = WorldClockLayoutPolicy()
 
-        // Regression: the caller used to pass the display height as the content
-        // height, so the panes plus gutter overflowed by the header's height and
-        // pushed into the bottom toolbar.
+        // Regression guard: passing the display height as the content height
+        // made the panes plus gutter overflow into the bottom toolbar.
         let contentHeight: CGFloat = 900
         let creaseOffset: CGFloat = (1000 / 2) - 100
         let heights = policy.stackedPaneHeights(
@@ -114,7 +113,6 @@ final class WorldClockLayoutTests: XCTestCase {
         // Content is 900 tall but the crease sits 300 below its top, because
         // the header occupies the space above it.
         let heights = policy.stackedPaneHeights(contentHeight: 900, creaseOffset: 300)
-
         XCTAssertEqual(heights.top, 300 - (policy.hingeGutter / 2), accuracy: 0.001)
         XCTAssertEqual(heights.bottom, 600 - (policy.hingeGutter / 2), accuracy: 0.001)
         XCTAssertEqual(heights.top + heights.bottom + policy.hingeGutter, 900, accuracy: 0.001)
@@ -123,8 +121,8 @@ final class WorldClockLayoutTests: XCTestCase {
     func testStackedPanesFallBackToEvenSplitWhenTheCreaseIsTooNearAnEdge() {
         let policy = WorldClockLayoutPolicy()
 
-        // A crease 10 points below the content top cannot give both panes a
-        // usable height, so the panes are split evenly instead.
+        // A crease 10 points below the top cannot give both panes a usable
+        // height, so they are split evenly instead.
         let heights = policy.stackedPaneHeights(contentHeight: 900, creaseOffset: 10)
 
         XCTAssertEqual(heights.top, heights.bottom, accuracy: 0.001)
@@ -143,8 +141,6 @@ final class WorldClockLayoutTests: XCTestCase {
     func testHingeGutterIsPartOfThePolicy() {
         let policy = WorldClockLayoutPolicy()
 
-        // The gutter belongs to the layout decision, so a caller cannot forget
-        // to reserve space for the crease.
         XCTAssertGreaterThan(policy.hingeGutter, 0)
         XCTAssertEqual(WorldClockLayoutPolicy(hingeGutter: 40).hingeGutter, 40)
     }
