@@ -36,15 +36,6 @@ The wider display keeps the reference calculator visible while your clocks scrol
 
 <img src="docs/images/iphone-duo.webp" alt="AnyTime on an unfolded iPhone Duo, with the calculator on the left and city clocks on the right" width="800">
 
-## Install with Homebrew
-
-Prefer Homebrew on your Mac?
-
-```bash
-brew tap hewigovens/tap
-brew install --cask anytime
-```
-
 ## Contributing
 
 Built with Swift and SwiftUI, with shared timezone search, persistence, and presentation logic in [`AnyTimeCore`](Packages/AnyTimeCore).
